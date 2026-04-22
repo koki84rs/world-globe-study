@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071927">
+  <title>World Globe Study</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07131c;
+      --ink: #f5f7ef;
+      --muted: #a9b7bb;
+      --panel: rgba(10, 22, 30, 0.78);
+      --panel-strong: rgba(10, 22, 30, 0.94);
+      --line: rgba(255, 255, 255, 0.14);
+      --ocean: #0d6985;
+      --land: #6aa46d;
+      --accent: #ffb85c;
+      --accent-2: #ff6f61;
+      --ok: #70d48b;
+      --bad: #ff7b72;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      min-height: 100dvh;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      min-height: 560px;
+      overflow: hidden;
+      background: linear-gradient(165deg, #07131c 0%, #0a2029 46%, #111917 100%);
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: calc(env(safe-area-inset-top) + 10px);
+      left: 12px;
+      right: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      pointer-events: none;
+    }
+
+    .brand {
+      min-width: 0;
+      pointer-events: auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(22px, 6vw, 34px);
+      line-height: 0.96;
+      font-weight: 820;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(8, 18, 25, 0.74);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(16px);
+      pointer-events: auto;
+    }
+
+    .icon-button.is-active {
+      border-color: rgba(255, 184, 92, 0.62);
+      background: rgba(255, 184, 92, 0.17);
+      color: #ffe2b2;
+    }
+
+    .search {
+      position: absolute;
+      z-index: 5;
+      top: calc(env(safe-area-inset-top) + 84px);
+      left: 12px;
+      right: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 0;
+      pointer-events: auto;
+    }
+
+    .search input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      outline: 0;
+      background: rgba(8, 18, 25, 0.78);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .search input:focus {
+      border-color: rgba(112, 212, 139, 0.62);
+    }
+
+    .search-results {
+      position: absolute;
+      top: 50px;
+      left: 0;
+      right: 0;
+      max-height: 230px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      display: none;
+    }
+
+    .search-results.is-open {
+      display: block;
+    }
+
+    .result-button {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: transparent;
+      text-align: left;
+    }
+
+    .result-button:last-child {
+      border-bottom: 0;
+    }
+
+    .result-button small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .tools {
+      position: absolute;
+      z-index: 4;
+      right: 12px;
+      top: calc(env(safe-area-inset-top) + 140px);
+      display: grid;
+      gap: 8px;
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      z-index: 6;
+      left: 10px;
+      right: 10px;
+      bottom: calc(env(safe-area-inset-bottom) + 10px);
+      min-height: 166px;
+      max-height: 40dvh;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .sheet-inner {
+      padding: 14px;
+    }
+
+    .country-head {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .flag {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 32px;
+    }
+
+    .country-head h2 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .country-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .fact {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .fact b {
+      display: block;
+      color: #d5ded7;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .fact span {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .sheet-actions,
+    .chips,
+    .quiz-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip,
+    .action-button,
+    .option-button {
+      min-height: 38px;
+      padding: 9px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+    }
+
+    .action-button.is-primary {
+      border-color: rgba(255, 184, 92, 0.58);
+      background: rgba(255, 184, 92, 0.18);
+      color: #ffe0a8;
+    }
+
+    .compare-note {
+      margin-top: 10px;
+      color: #ffd8a1;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .quiz-panel {
+      position: absolute;
+      z-index: 7;
+      left: 10px;
+      right: 10px;
+      bottom: calc(env(safe-area-inset-bottom) + 190px);
+      border: 1px solid rgba(255, 184, 92, 0.28);
+      border-radius: 8px;
+      background: rgba(18, 28, 30, 0.9);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      display: none;
+    }
+
+    .quiz-panel.is-open {
+      display: block;
+    }
+
+    .quiz-panel h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .quiz-panel p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .option-button {
+      flex: 1 1 calc(50% - 8px);
+      text-align: left;
+    }
+
+    .option-button.is-correct {
+      border-color: rgba(112, 212, 139, 0.76);
+      background: rgba(112, 212, 139, 0.18);
+    }
+
+    .option-button.is-wrong {
+      border-color: rgba(255, 123, 114, 0.72);
+      background: rgba(255, 123, 114, 0.14);
+    }
+
+    .toast {
+      position: absolute;
+      z-index: 8;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom) + 12px);
+      max-width: calc(100% - 28px);
+      padding: 10px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(5, 13, 18, 0.9);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      transform: translate(-50%, 120%);
+      opacity: 0;
+      transition: transform 180ms ease, opacity 180ms ease;
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .toast.is-open {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (min-width: 780px) {
+      .topbar {
+        top: 22px;
+        left: 24px;
+        right: 24px;
+      }
+
+      .search {
+        top: 118px;
+        left: 24px;
+        right: auto;
+        width: min(420px, calc(100% - 48px));
+      }
+
+      .tools {
+        top: 118px;
+        right: 24px;
+      }
+
+      .bottom-sheet {
+        left: auto;
+        right: 24px;
+        bottom: 24px;
+        width: min(390px, calc(100% - 48px));
+        max-height: min(560px, calc(100dvh - 196px));
+      }
+
+      .quiz-panel {
+        left: 24px;
+        right: auto;
+        bottom: 24px;
+        width: 420px;
+      }
+
+      .sheet-inner {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <canvas id="globe" aria-label="interactive world globe"></canvas>
+
+    <header class="topbar">
+      <div class="brand">
+        <h1>World<br>Globe Study</h1>
+        <p id="statusText">196 countries / capitals / flags</p>
+      </div>
+      <button class="icon-button" id="shareButton" type="button" title="共有URLをコピー" aria-label="共有URLをコピー">↗</button>
+    </header>
+
+    <section class="search" aria-label="country search">
+      <div class="search-box">
+        <input id="searchInput" type="search" autocomplete="off" placeholder="国名・首都で検索">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      <button class="icon-button" id="homeButton" type="button" title="日本へ移動" aria-label="日本へ移動">◎</button>
+    </section>
+
+    <nav class="tools" aria-label="globe tools">
+      <button class="icon-button is-active" id="spinButton" type="button" title="自動回転" aria-label="自動回転">⟳</button>
+      <button class="icon-button is-active" id="labelButton" type="button" title="ラベル表示" aria-label="ラベル表示">Aa</button>
+      <button class="icon-button" id="quizButton" type="button" title="首都クイズ" aria-label="首都クイズ">?</button>
+      <button class="icon-button" id="resetButton" type="button" title="リセット" aria-label="リセット">⌂</button>
+    </nav>
+
+    <section class="quiz-panel" id="quizPanel" aria-live="polite"></section>
+    <section class="bottom-sheet" id="infoSheet" aria-live="polite"></section>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    /*
+      World Globe Study
+      -----------------
+      外部ライブラリを使わず、Canvasだけで動く単体HTMLアプリです。
+      共有するときは、この index.html をそのまま静的ホスティングに置けます。
+    */
+
+    const canvas = document.getElementById("globe");
+    const ctx = canvas.getContext("2d");
+    const infoSheet = document.getElementById("infoSheet");
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    const statusText = document.getElementById("statusText");
+    const toast = document.getElementById("toast");
+    const quizPanel = document.getElementById("quizPanel");
+
+    const DEG = Math.PI / 180;
+    const EARTH_RADIUS_KM = 6371;
+    const MAP_W = 720;
+    const MAP_H = 360;
+
+    /*
+      国データです。
+      lat / lon は首都の緯度・経度で、地球儀上のピン位置に使います。
+      cc は2文字の国コードです。flagFromCode() で国旗絵文字に変換します。
+    */
+    const COUNTRIES = [
+      { cc: "JP", name: "日本", en: "Japan", capital: "東京", lat: 35.69, lon: 139.69, region: "アジア" },
+      { cc: "KR", name: "韓国", en: "South Korea", capital: "ソウル", lat: 37.57, lon: 126.98, region: "アジア" },
+      { cc: "KP", name: "北朝鮮", en: "North Korea", capital: "平壌", lat: 39.04, lon: 125.76, region: "アジア" },
+      { cc: "CN", name: "中国", en: "China", capital: "北京", lat: 39.90, lon: 116.40, region: "アジア" },
+      { cc: "MN", name: "モンゴル", en: "Mongolia", capital: "ウランバートル", lat: 47.92, lon: 106.92, region: "アジア" },
+      { cc: "TW", name: "台湾", en: "Taiwan", capital: "台北", lat: 25.03, lon: 121.56, region: "アジア" },
+      { cc: "IN", name: "インド", en: "India", capital: "ニューデリー", lat: 28.61, lon: 77.21, region: "アジア" },
+      { cc: "PK", name: "パキスタン", en: "Pakistan", capital: "イスラマバード", lat: 33.69, lon: 73.06, region: "アジア" },
+      { cc: "BD", name: "バングラデシュ", en: "Bangladesh", capital: "ダッカ", lat: 23.81, lon: 90.41, region: "アジア" },
+      { cc: "LK", name: "スリランカ", en: "Sri Lanka", capital: "スリジャヤワルダナプラコッテ", lat: 6.89, lon: 79.90, region: "アジア" },
+      { cc: "NP", name: "ネパール", en: "Nepal", capital: "カトマンズ", lat: 27.72, lon: 85.32, region: "アジア" },
+      { cc: "BT", name: "ブータン", en: "Bhutan", capital: "ティンプー", lat: 27.47, lon: 89.64, region: "アジア" },
+      { cc: "MV", name: "モルディブ", en: "Maldives", capital: "マレ", lat: 4.18, lon: 73.51, region: "アジア" },
+      { cc: "MM", name: "ミャンマー", en: "Myanmar", capital: "ネピドー", lat: 19.76, lon: 96.08, region: "アジア" },
+      { cc: "TH", name: "タイ", en: "Thailand", capital: "バンコク", lat: 13.75, lon: 100.50, region: "アジア" },
+      { cc: "LA", name: "ラオス", en: "Laos", capital: "ビエンチャン", lat: 17.98, lon: 102.63, region: "アジア" },
+      { cc: "KH", name: "カンボジア", en: "Cambodia", capital: "プノンペン", lat: 11.56, lon: 104.93, region: "アジア" },
+      { cc: "VN", name: "ベトナム", en: "Vietnam", capital: "ハノイ", lat: 21.03, lon: 105.85, region: "アジア" },
+      { cc: "MY", name: "マレーシア", en: "Malaysia", capital: "クアラルンプール", lat: 3.14, lon: 101.69, region: "アジア" },
+      { cc: "SG", name: "シンガポール", en: "Singapore", capital: "シンガポール", lat: 1.35, lon: 103.82, region: "アジア" },
+      { cc: "ID", name: "インドネシア", en: "Indonesia", capital: "ジャカルタ", lat: -6.21, lon: 106.85, region: "アジア" },
+      { cc: "PH", name: "フィリピン", en: "Philippines", capital: "マニラ", lat: 14.60, lon: 120.98, region: "アジア" },
+      { cc: "BN", name: "ブルネイ", en: "Brunei", capital: "バンダルスリブガワン", lat: 4.90, lon: 114.94, region: "アジア" },
+      { cc: "TL", name: "東ティモール", en: "Timor-Leste", capital: "ディリ", lat: -8.56, lon: 125.57, region: "アジア" },
+      { cc: "KZ", name: "カザフスタン", en: "Kazakhstan", capital: "アスタナ", lat: 51.17, lon: 71.45, region: "アジア" },
+      { cc: "UZ", name: "ウズベキスタン", en: "Uzbekistan", capital: "タシュケント", lat: 41.31, lon: 69.28, region: "アジア" },
+      { cc: "TM", name: "トルクメニスタン", en: "Turkmenistan", capital: "アシガバート", lat: 37.96, lon: 58.33, region: "アジア" },
+      { cc: "KG", name: "キルギス", en: "Kyrgyzstan", capital: "ビシュケク", lat: 42.87, lon: 74.59, region: "アジア" },
+      { cc: "TJ", name: "タジキスタン", en: "Tajikistan", capital: "ドゥシャンベ", lat: 38.56, lon: 68.79, region: "アジア" },
+      { cc: "AF", name: "アフガニスタン", en: "Afghanistan", capital: "カブール", lat: 34.56, lon: 69.21, region: "アジア" },
+      { cc: "IR", name: "イラン", en: "Iran", capital: "テヘラン", lat: 35.69, lon: 51.39, region: "アジア" },
+      { cc: "IQ", name: "イラク", en: "Iraq", capital: "バグダッド", lat: 33.31, lon: 44.36, region: "アジア" },
+      { cc: "SA", name: "サウジアラビア", en: "Saudi Arabia", capital: "リヤド", lat: 24.71, lon: 46.68, region: "アジア" },
+      { cc: "AE", name: "アラブ首長国連邦", en: "United Arab Emirates", capital: "アブダビ", lat: 24.45, lon: 54.38, region: "アジア" },
+      { cc: "QA", name: "カタール", en: "Qatar", capital: "ドーハ", lat: 25.29, lon: 51.53, region: "アジア" },
+      { cc: "KW", name: "クウェート", en: "Kuwait", capital: "クウェート", lat: 29.38, lon: 47.98, region: "アジア" },
+      { cc: "BH", name: "バーレーン", en: "Bahrain", capital: "マナーマ", lat: 26.23, lon: 50.59, region: "アジア" },
+      { cc: "OM", name: "オマーン", en: "Oman", capital: "マスカット", lat: 23.59, lon: 58.41, region: "アジア" },
+      { cc: "YE", name: "イエメン", en: "Yemen", capital: "サナア", lat: 15.37, lon: 44.19, region: "アジア" },
+      { cc: "TR", name: "トルコ", en: "Turkey", capital: "アンカラ", lat: 39.93, lon: 32.86, region: "アジア" },
+      { cc: "IL", name: "イスラエル", en: "Israel", capital: "エルサレム", lat: 31.78, lon: 35.21, region: "アジア" },
+      { cc: "PS", name: "パレスチナ", en: "Palestine", capital: "ラマッラー", lat: 31.90, lon: 35.20, region: "アジア" },
+      { cc: "LB", name: "レバノン", en: "Lebanon", capital: "ベイルート", lat: 33.89, lon: 35.50, region: "アジア" },
+      { cc: "SY", name: "シリア", en: "Syria", capital: "ダマスカス", lat: 33.51, lon: 36.28, region: "アジア" },
+      { cc: "JO", name: "ヨルダン", en: "Jordan", capital: "アンマン", lat: 31.95, lon: 35.93, region: "アジア" },
+      { cc: "AM", name: "アルメニア", en: "Armenia", capital: "エレバン", lat: 40.18, lon: 44.51, region: "アジア" },
+      { cc: "AZ", name: "アゼルバイジャン", en: "Azerbaijan", capital: "バクー", lat: 40.41, lon: 49.87, region: "アジア" },
+      { cc: "GE", name: "ジョージア", en: "Georgia", capital: "トビリシ", lat: 41.72, lon: 44.79, region: "アジア" },
+
+      { cc: "GB", name: "イギリス", en: "United Kingdom", capital: "ロンドン", lat: 51.51, lon: -0.13, region: "ヨーロッパ" },
+      { cc: "IE", name: "アイルランド", en: "Ireland", capital: "ダブリン", lat: 53.35, lon: -6.26, region: "ヨーロッパ" },
+      { cc: "FR", name: "フランス", en: "France", capital: "パリ", lat: 48.86, lon: 2.35, region: "ヨーロッパ" },
+      { cc: "ES", name: "スペイン", en: "Spain", capital: "マドリード", lat: 40.42, lon: -3.70, region: "ヨーロッパ" },
+      { cc: "PT", name: "ポルトガル", en: "Portugal", capital: "リスボン", lat: 38.72, lon: -9.14, region: "ヨーロッパ" },
+      { cc: "AD", name: "アンドラ", en: "Andorra", capital: "アンドラ・ラ・ベリャ", lat: 42.51, lon: 1.52, region: "ヨーロッパ" },
+      { cc: "MC", name: "モナコ", en: "Monaco", capital: "モナコ", lat: 43.73, lon: 7.42, region: "ヨーロッパ" },
+      { cc: "BE", name: "ベルギー", en: "Belgium", capital: "ブリュッセル", lat: 50.85, lon: 4.35, region: "ヨーロッパ" },
+      { cc: "NL", name: "オランダ", en: "Netherlands", capital: "アムステルダム", lat: 52.37, lon: 4.90, region: "ヨーロッパ" },
+      { cc: "LU", name: "ルクセンブルク", en: "Luxembourg", capital: "ルクセンブルク", lat: 49.61, lon: 6.13, region: "ヨーロッパ" },
+      { cc: "DE", name: "ドイツ", en: "Germany", capital: "ベルリン", lat: 52.52, lon: 13.40, region: "ヨーロッパ" },
+      { cc: "CH", name: "スイス", en: "Switzerland", capital: "ベルン", lat: 46.95, lon: 7.45, region: "ヨーロッパ" },
+      { cc: "AT", name: "オーストリア", en: "Austria", capital: "ウィーン", lat: 48.21, lon: 16.37, region: "ヨーロッパ" },
+      { cc: "IT", name: "イタリア", en: "Italy", capital: "ローマ", lat: 41.90, lon: 12.50, region: "ヨーロッパ" },
+      { cc: "VA", name: "バチカン", en: "Vatican City", capital: "バチカン市国", lat: 41.90, lon: 12.45, region: "ヨーロッパ" },
+      { cc: "SM", name: "サンマリノ", en: "San Marino", capital: "サンマリノ", lat: 43.94, lon: 12.45, region: "ヨーロッパ" },
+      { cc: "MT", name: "マルタ", en: "Malta", capital: "バレッタ", lat: 35.90, lon: 14.51, region: "ヨーロッパ" },
+      { cc: "CY", name: "キプロス", en: "Cyprus", capital: "ニコシア", lat: 35.19, lon: 33.38, region: "ヨーロッパ" },
+      { cc: "LI", name: "リヒテンシュタイン", en: "Liechtenstein", capital: "ファドゥーツ", lat: 47.14, lon: 9.52, region: "ヨーロッパ" },
+      { cc: "PL", name: "ポーランド", en: "Poland", capital: "ワルシャワ", lat: 52.23, lon: 21.01, region: "ヨーロッパ" },
+      { cc: "CZ", name: "チェコ", en: "Czechia", capital: "プラハ", lat: 50.08, lon: 14.44, region: "ヨーロッパ" },
+      { cc: "SK", name: "スロバキア", en: "Slovakia", capital: "ブラチスラバ", lat: 48.15, lon: 17.11, region: "ヨーロッパ" },
+      { cc: "HU", name: "ハンガリー", en: "Hungary", capital: "ブダペスト", lat: 47.50, lon: 19.04, region: "ヨーロッパ" },
+      { cc: "SI", name: "スロベニア", en: "Slovenia", capital: "リュブリャナ", lat: 46.06, lon: 14.51, region: "ヨーロッパ" },
+      { cc: "HR", name: "クロアチア", en: "Croatia", capital: "ザグレブ", lat: 45.81, lon: 15.98, region: "ヨーロッパ" },
+      { cc: "BA", name: "ボスニア・ヘルツェゴビナ", en: "Bosnia and Herzegovina", capital: "サラエボ", lat: 43.86, lon: 18.41, region: "ヨーロッパ" },
+      { cc: "RS", name: "セルビア", en: "Serbia", capital: "ベオグラード", lat: 44.81, lon: 20.46, region: "ヨーロッパ" },
+      { cc: "ME", name: "モンテネグロ", en: "Montenegro", capital: "ポドゴリツァ", lat: 42.43, lon: 19.26, region: "ヨーロッパ" },
+      { cc: "AL", name: "アルバニア", en: "Albania", capital: "ティラナ", lat: 41.33, lon: 19.82, region: "ヨーロッパ" },
+      { cc: "MK", name: "北マケドニア", en: "North Macedonia", capital: "スコピエ", lat: 41.99, lon: 21.43, region: "ヨーロッパ" },
+      { cc: "GR", name: "ギリシャ", en: "Greece", capital: "アテネ", lat: 37.98, lon: 23.73, region: "ヨーロッパ" },
+      { cc: "BG", name: "ブルガリア", en: "Bulgaria", capital: "ソフィア", lat: 42.70, lon: 23.32, region: "ヨーロッパ" },
+      { cc: "RO", name: "ルーマニア", en: "Romania", capital: "ブカレスト", lat: 44.43, lon: 26.10, region: "ヨーロッパ" },
+      { cc: "MD", name: "モルドバ", en: "Moldova", capital: "キシナウ", lat: 47.01, lon: 28.86, region: "ヨーロッパ" },
+      { cc: "UA", name: "ウクライナ", en: "Ukraine", capital: "キーウ", lat: 50.45, lon: 30.52, region: "ヨーロッパ" },
+      { cc: "BY", name: "ベラルーシ", en: "Belarus", capital: "ミンスク", lat: 53.90, lon: 27.56, region: "ヨーロッパ" },
+      { cc: "LT", name: "リトアニア", en: "Lithuania", capital: "ビリニュス", lat: 54.69, lon: 25.28, region: "ヨーロッパ" },
+      { cc: "LV", name: "ラトビア", en: "Latvia", capital: "リガ", lat: 56.95, lon: 24.11, region: "ヨーロッパ" },
+      { cc: "EE", name: "エストニア", en: "Estonia", capital: "タリン", lat: 59.44, lon: 24.75, region: "ヨーロッパ" },
+      { cc: "FI", name: "フィンランド", en: "Finland", capital: "ヘルシンキ", lat: 60.17, lon: 24.94, region: "ヨーロッパ" },
+      { cc: "SE", name: "スウェーデン", en: "Sweden", capital: "ストックホルム", lat: 59.33, lon: 18.07, region: "ヨーロッパ" },
+      { cc: "NO", name: "ノルウェー", en: "Norway", capital: "オスロ", lat: 59.91, lon: 10.75, region: "ヨーロッパ" },
+      { cc: "DK", name: "デンマーク", en: "Denmark", capital: "コペンハーゲン", lat: 55.68, lon: 12.57, region: "ヨーロッパ" },
+      { cc: "IS", name: "アイスランド", en: "Iceland", capital: "レイキャビク", lat: 64.15, lon: -21.94, region: "ヨーロッパ" },
+      { cc: "RU", name: "ロシア", en: "Russia", capital: "モスクワ", lat: 55.76, lon: 37.62, region: "ヨーロッパ" },
+
+      { cc: "EG", name: "エジプト", en: "Egypt", capital: "カイロ", lat: 30.04, lon: 31.24, region: "アフリカ" },
+      { cc: "LY", name: "リビア", en: "Libya", capital: "トリポリ", lat: 32.89, lon: 13.19, region: "アフリカ" },
+      { cc: "TN", name: "チュニジア", en: "Tunisia", capital: "チュニス", lat: 36.81, lon: 10.18, region: "アフリカ" },
+      { cc: "DZ", name: "アルジェリア", en: "Algeria", capital: "アルジェ", lat: 36.75, lon: 3.06, region: "アフリカ" },
+      { cc: "MA", name: "モロッコ", en: "Morocco", capital: "ラバト", lat: 34.02, lon: -6.84, region: "アフリカ" },
+      { cc: "SD", name: "スーダン", en: "Sudan", capital: "ハルツーム", lat: 15.50, lon: 32.56, region: "アフリカ" },
+      { cc: "SS", name: "南スーダン", en: "South Sudan", capital: "ジュバ", lat: 4.86, lon: 31.57, region: "アフリカ" },
+      { cc: "ET", name: "エチオピア", en: "Ethiopia", capital: "アディスアベバ", lat: 9.03, lon: 38.75, region: "アフリカ" },
+      { cc: "ER", name: "エリトリア", en: "Eritrea", capital: "アスマラ", lat: 15.32, lon: 38.93, region: "アフリカ" },
+      { cc: "DJ", name: "ジブチ", en: "Djibouti", capital: "ジブチ", lat: 11.59, lon: 43.15, region: "アフリカ" },
+      { cc: "SO", name: "ソマリア", en: "Somalia", capital: "モガディシュ", lat: 2.05, lon: 45.32, region: "アフリカ" },
+      { cc: "KE", name: "ケニア", en: "Kenya", capital: "ナイロビ", lat: -1.29, lon: 36.82, region: "アフリカ" },
+      { cc: "UG", name: "ウガンダ", en: "Uganda", capital: "カンパラ", lat: 0.35, lon: 32.58, region: "アフリカ" },
+      { cc: "RW", name: "ルワンダ", en: "Rwanda", capital: "キガリ", lat: -1.95, lon: 30.06, region: "アフリカ" },
+      { cc: "BI", name: "ブルンジ", en: "Burundi", capital: "ギテガ", lat: -3.43, lon: 29.92, region: "アフリカ" },
+      { cc: "TZ", name: "タンザニア", en: "Tanzania", capital: "ドドマ", lat: -6.16, lon: 35.75, region: "アフリカ" },
+      { cc: "CD", name: "コンゴ民主共和国", en: "DR Congo", capital: "キンシャサ", lat: -4.33, lon: 15.31, region: "アフリカ" },
+      { cc: "CG", name: "コンゴ共和国", en: "Republic of the Congo", capital: "ブラザビル", lat: -4.27, lon: 15.28, region: "アフリカ" },
+      { cc: "GA", name: "ガボン", en: "Gabon", capital: "リーブルビル", lat: 0.42, lon: 9.45, region: "アフリカ" },
+      { cc: "GQ", name: "赤道ギニア", en: "Equatorial Guinea", capital: "マラボ", lat: 3.75, lon: 8.78, region: "アフリカ" },
+      { cc: "CM", name: "カメルーン", en: "Cameroon", capital: "ヤウンデ", lat: 3.87, lon: 11.52, region: "アフリカ" },
+      { cc: "NG", name: "ナイジェリア", en: "Nigeria", capital: "アブジャ", lat: 9.08, lon: 7.40, region: "アフリカ" },
+      { cc: "NE", name: "ニジェール", en: "Niger", capital: "ニアメ", lat: 13.51, lon: 2.11, region: "アフリカ" },
+      { cc: "TD", name: "チャド", en: "Chad", capital: "ンジャメナ", lat: 12.13, lon: 15.05, region: "アフリカ" },
+      { cc: "CF", name: "中央アフリカ", en: "Central African Republic", capital: "バンギ", lat: 4.39, lon: 18.56, region: "アフリカ" },
+      { cc: "GH", name: "ガーナ", en: "Ghana", capital: "アクラ", lat: 5.56, lon: -0.20, region: "アフリカ" },
+      { cc: "CI", name: "コートジボワール", en: "Cote d'Ivoire", capital: "ヤムスクロ", lat: 6.82, lon: -5.28, region: "アフリカ" },
+      { cc: "LR", name: "リベリア", en: "Liberia", capital: "モンロビア", lat: 6.30, lon: -10.80, region: "アフリカ" },
+      { cc: "SL", name: "シエラレオネ", en: "Sierra Leone", capital: "フリータウン", lat: 8.48, lon: -13.23, region: "アフリカ" },
+      { cc: "GN", name: "ギニア", en: "Guinea", capital: "コナクリ", lat: 9.64, lon: -13.58, region: "アフリカ" },
+      { cc: "GW", name: "ギニアビサウ", en: "Guinea-Bissau", capital: "ビサウ", lat: 11.86, lon: -15.58, region: "アフリカ" },
+      { cc: "SN", name: "セネガル", en: "Senegal", capital: "ダカール", lat: 14.69, lon: -17.45, region: "アフリカ" },
+      { cc: "GM", name: "ガンビア", en: "Gambia", capital: "バンジュール", lat: 13.45, lon: -16.58, region: "アフリカ" },
+      { cc: "MR", name: "モーリタニア", en: "Mauritania", capital: "ヌアクショット", lat: 18.08, lon: -15.98, region: "アフリカ" },
+      { cc: "ML", name: "マリ", en: "Mali", capital: "バマコ", lat: 12.64, lon: -8.00, region: "アフリカ" },
+      { cc: "BF", name: "ブルキナファソ", en: "Burkina Faso", capital: "ワガドゥグー", lat: 12.37, lon: -1.53, region: "アフリカ" },
+      { cc: "BJ", name: "ベナン", en: "Benin", capital: "ポルトノボ", lat: 6.50, lon: 2.60, region: "アフリカ" },
+      { cc: "TG", name: "トーゴ", en: "Togo", capital: "ロメ", lat: 6.13, lon: 1.22, region: "アフリカ" },
+      { cc: "CV", name: "カーボベルデ", en: "Cabo Verde", capital: "プライア", lat: 14.93, lon: -23.51, region: "アフリカ" },
+      { cc: "ST", name: "サントメ・プリンシペ", en: "Sao Tome and Principe", capital: "サントメ", lat: 0.34, lon: 6.73, region: "アフリカ" },
+      { cc: "AO", name: "アンゴラ", en: "Angola", capital: "ルアンダ", lat: -8.84, lon: 13.23, region: "アフリカ" },
+      { cc: "ZM", name: "ザンビア", en: "Zambia", capital: "ルサカ", lat: -15.42, lon: 28.28, region: "アフリカ" },
+      { cc: "ZW", name: "ジンバブエ", en: "Zimbabwe", capital: "ハラレ", lat: -17.83, lon: 31.05, region: "アフリカ" },
+      { cc: "MZ", name: "モザンビーク", en: "Mozambique", capital: "マプト", lat: -25.97, lon: 32.58, region: "アフリカ" },
+      { cc: "MW", name: "マラウイ", en: "Malawi", capital: "リロングウェ", lat: -13.96, lon: 33.79, region: "アフリカ" },
+      { cc: "NA", name: "ナミビア", en: "Namibia", capital: "ウィントフック", lat: -22.56, lon: 17.08, region: "アフリカ" },
+      { cc: "BW", name: "ボツワナ", en: "Botswana", capital: "ハボローネ", lat: -24.63, lon: 25.92, region: "アフリカ" },
+      { cc: "ZA", name: "南アフリカ", en: "South Africa", capital: "プレトリア", lat: -25.75, lon: 28.19, region: "アフリカ" },
+      { cc: "LS", name: "レソト", en: "Lesotho", capital: "マセル", lat: -29.31, lon: 27.48, region: "アフリカ" },
+      { cc: "SZ", name: "エスワティニ", en: "Eswatini", capital: "ムババーネ", lat: -26.31, lon: 31.14, region: "アフリカ" },
+      { cc: "MG", name: "マダガスカル", en: "Madagascar", capital: "アンタナナリボ", lat: -18.88, lon: 47.51, region: "アフリカ" },
+      { cc: "MU", name: "モーリシャス", en: "Mauritius", capital: "ポートルイス", lat: -20.16, lon: 57.50, region: "アフリカ" },
+      { cc: "SC", name: "セーシェル", en: "Seychelles", capital: "ヴィクトリア", lat: -4.62, lon: 55.45, region: "アフリカ" },
+      { cc: "KM", name: "コモロ", en: "Comoros", capital: "モロニ", lat: -11.70, lon: 43.26, region: "アフリカ" },
+
+      { cc: "US", name: "アメリカ", en: "United States", capital: "ワシントンD.C.", lat: 38.90, lon: -77.04, region: "北中米" },
+      { cc: "CA", name: "カナダ", en: "Canada", capital: "オタワ", lat: 45.42, lon: -75.70, region: "北中米" },
+      { cc: "MX", name: "メキシコ", en: "Mexico", capital: "メキシコシティ", lat: 19.43, lon: -99.13, region: "北中米" },
+      { cc: "GT", name: "グアテマラ", en: "Guatemala", capital: "グアテマラシティ", lat: 14.63, lon: -90.51, region: "北中米" },
+      { cc: "BZ", name: "ベリーズ", en: "Belize", capital: "ベルモパン", lat: 17.25, lon: -88.77, region: "北中米" },
+      { cc: "HN", name: "ホンジュラス", en: "Honduras", capital: "テグシガルパ", lat: 14.08, lon: -87.21, region: "北中米" },
+      { cc: "SV", name: "エルサルバドル", en: "El Salvador", capital: "サンサルバドル", lat: 13.69, lon: -89.19, region: "北中米" },
+      { cc: "NI", name: "ニカラグア", en: "Nicaragua", capital: "マナグア", lat: 12.11, lon: -86.24, region: "北中米" },
+      { cc: "CR", name: "コスタリカ", en: "Costa Rica", capital: "サンホセ", lat: 9.93, lon: -84.08, region: "北中米" },
+      { cc: "PA", name: "パナマ", en: "Panama", capital: "パナマシティ", lat: 8.98, lon: -79.52, region: "北中米" },
+      { cc: "CU", name: "キューバ", en: "Cuba", capital: "ハバナ", lat: 23.11, lon: -82.37, region: "北中米" },
+      { cc: "HT", name: "ハイチ", en: "Haiti", capital: "ポルトープランス", lat: 18.54, lon: -72.34, region: "北中米" },
+      { cc: "DO", name: "ドミニカ共和国", en: "Dominican Republic", capital: "サントドミンゴ", lat: 18.49, lon: -69.93, region: "北中米" },
+      { cc: "JM", name: "ジャマイカ", en: "Jamaica", capital: "キングストン", lat: 17.97, lon: -76.79, region: "北中米" },
+      { cc: "TT", name: "トリニダード・トバゴ", en: "Trinidad and Tobago", capital: "ポートオブスペイン", lat: 10.66, lon: -61.52, region: "北中米" },
+      { cc: "BB", name: "バルバドス", en: "Barbados", capital: "ブリッジタウン", lat: 13.10, lon: -59.62, region: "北中米" },
+      { cc: "BS", name: "バハマ", en: "Bahamas", capital: "ナッソー", lat: 25.04, lon: -77.35, region: "北中米" },
+      { cc: "AG", name: "アンティグア・バーブーダ", en: "Antigua and Barbuda", capital: "セントジョンズ", lat: 17.12, lon: -61.85, region: "北中米" },
+      { cc: "DM", name: "ドミニカ国", en: "Dominica", capital: "ロゾー", lat: 15.30, lon: -61.39, region: "北中米" },
+      { cc: "GD", name: "グレナダ", en: "Grenada", capital: "セントジョージズ", lat: 12.06, lon: -61.75, region: "北中米" },
+      { cc: "KN", name: "セントクリストファー・ネービス", en: "Saint Kitts and Nevis", capital: "バセテール", lat: 17.30, lon: -62.72, region: "北中米" },
+      { cc: "LC", name: "セントルシア", en: "Saint Lucia", capital: "カストリーズ", lat: 14.01, lon: -60.99, region: "北中米" },
+      { cc: "VC", name: "セントビンセント・グレナディーン", en: "Saint Vincent and the Grenadines", capital: "キングスタウン", lat: 13.16, lon: -61.22, region: "北中米" },
+      { cc: "CO", name: "コロンビア", en: "Colombia", capital: "ボゴタ", lat: 4.71, lon: -74.07, region: "南米" },
+      { cc: "VE", name: "ベネズエラ", en: "Venezuela", capital: "カラカス", lat: 10.48, lon: -66.90, region: "南米" },
+      { cc: "GY", name: "ガイアナ", en: "Guyana", capital: "ジョージタウン", lat: 6.80, lon: -58.16, region: "南米" },
+      { cc: "SR", name: "スリナム", en: "Suriname", capital: "パラマリボ", lat: 5.85, lon: -55.20, region: "南米" },
+      { cc: "EC", name: "エクアドル", en: "Ecuador", capital: "キト", lat: -0.18, lon: -78.47, region: "南米" },
+      { cc: "PE", name: "ペルー", en: "Peru", capital: "リマ", lat: -12.05, lon: -77.04, region: "南米" },
+      { cc: "BR", name: "ブラジル", en: "Brazil", capital: "ブラジリア", lat: -15.79, lon: -47.88, region: "南米" },
+      { cc: "BO", name: "ボリビア", en: "Bolivia", capital: "スクレ", lat: -19.02, lon: -65.26, region: "南米" },
+      { cc: "PY", name: "パラグアイ", en: "Paraguay", capital: "アスンシオン", lat: -25.26, lon: -57.58, region: "南米" },
+      { cc: "UY", name: "ウルグアイ", en: "Uruguay", capital: "モンテビデオ", lat: -34.90, lon: -56.16, region: "南米" },
+      { cc: "AR", name: "アルゼンチン", en: "Argentina", capital: "ブエノスアイレス", lat: -34.60, lon: -58.38, region: "南米" },
+      { cc: "CL", name: "チリ", en: "Chile", capital: "サンティアゴ", lat: -33.45, lon: -70.66, region: "南米" },
+
+      { cc: "AU", name: "オーストラリア", en: "Australia", capital: "キャンベラ", lat: -35.28, lon: 149.13, region: "オセアニア" },
+      { cc: "NZ", name: "ニュージーランド", en: "New Zealand", capital: "ウェリントン", lat: -41.29, lon: 174.78, region: "オセアニア" },
+      { cc: "PG", name: "パプアニューギニア", en: "Papua New Guinea", capital: "ポートモレスビー", lat: -9.44, lon: 147.18, region: "オセアニア" },
+      { cc: "FJ", name: "フィジー", en: "Fiji", capital: "スバ", lat: -18.14, lon: 178.44, region: "オセアニア" },
+      { cc: "SB", name: "ソロモン諸島", en: "Solomon Islands", capital: "ホニアラ", lat: -9.43, lon: 159.95, region: "オセアニア" },
+      { cc: "VU", name: "バヌアツ", en: "Vanuatu", capital: "ポートビラ", lat: -17.73, lon: 168.32, region: "オセアニア" },
+      { cc: "WS", name: "サモア", en: "Samoa", capital: "アピア", lat: -13.83, lon: -171.77, region: "オセアニア" },
+      { cc: "TO", name: "トンガ", en: "Tonga", capital: "ヌクアロファ", lat: -21.14, lon: -175.20, region: "オセアニア" },
+      { cc: "KI", name: "キリバス", en: "Kiribati", capital: "タラワ", lat: 1.33, lon: 172.98, region: "オセアニア" },
+      { cc: "TV", name: "ツバル", en: "Tuvalu", capital: "フナフティ", lat: -8.52, lon: 179.19, region: "オセアニア" },
+      { cc: "NR", name: "ナウル", en: "Nauru", capital: "ヤレン", lat: -0.55, lon: 166.92, region: "オセアニア" },
+      { cc: "MH", name: "マーシャル諸島", en: "Marshall Islands", capital: "マジュロ", lat: 7.12, lon: 171.06, region: "オセアニア" },
+      { cc: "FM", name: "ミクロネシア連邦", en: "Micronesia", capital: "パリキール", lat: 6.92, lon: 158.16, region: "オセアニア" },
+      { cc: "PW", name: "パラオ", en: "Palau", capital: "ンゲルルムッド", lat: 7.50, lon: 134.62, region: "オセアニア" }
+    ];
+
+    /*
+      大陸の簡易ポリゴンです。
+      正確な国境データではなく、地球儀の地形として使う軽量な下絵です。
+      本格的な境界が必要になったら、この配列をGeoJSON読み込みに置き換えます。
+    */
+    const LANDMASSES = [
+      { color: "#5f956a", points: [[-168,72],[-140,70],[-126,59],[-118,50],[-124,40],[-116,32],[-103,23],[-92,16],[-82,9],[-78,18],[-81,25],[-75,31],[-66,43],[-53,47],[-52,58],[-64,68],[-90,73],[-120,73],[-150,74],[-168,72]] },
+      { color: "#75a86d", points: [[-82,12],[-73,8],[-62,0],[-48,-6],[-37,-15],[-42,-25],[-50,-34],[-58,-45],[-67,-55],[-73,-48],[-76,-35],[-78,-20],[-81,-6],[-82,12]] },
+      { color: "#7ea967", points: [[-11,36],[-5,51],[12,58],[33,66],[62,72],[95,72],[128,66],[156,55],[178,50],[168,42],[145,36],[126,28],[108,14],[92,8],[78,9],[67,24],[54,25],[42,36],[29,41],[17,39],[7,44],[-4,42],[-11,36]] },
+      { color: "#8cb56f", points: [[26,39],[44,36],[56,26],[64,20],[78,7],[81,-4],[73,-8],[64,8],[56,21],[42,28],[32,32],[26,39]] },
+      { color: "#b5a36a", points: [[-17,35],[1,37],[17,33],[33,31],[44,12],[51,-8],[44,-24],[33,-35],[18,-35],[5,-30],[-9,-18],[-17,5],[-17,35]] },
+      { color: "#b88b59", points: [[113,-12],[130,-10],[145,-17],[154,-27],[146,-39],[129,-35],[116,-33],[112,-22],[113,-12]] },
+      { color: "#8fba88", points: [[-52,60],[-36,70],[-42,82],[-64,83],[-73,75],[-66,63],[-52,60]] },
+      { color: "#73a86f", points: [[-8,50],[2,58],[1,62],[-8,59],[-10,53],[-8,50]] },
+      { color: "#77aa6c", points: [[138,34],[141,40],[143,44],[146,43],[144,37],[141,32],[138,34]] },
+      { color: "#78a96b", points: [[95,5],[105,5],[116,2],[126,0],[131,-5],[120,-8],[107,-7],[96,-3],[95,5]] },
+      { color: "#95b36a", points: [[43,-12],[50,-16],[49,-25],[44,-25],[43,-12]] },
+      { color: "#83a76f", points: [[166,-34],[178,-38],[176,-47],[166,-45],[166,-34]] },
+      { color: "#d8e0d2", points: [[-180,-65],[-135,-69],[-90,-66],[-45,-70],[0,-66],[45,-70],[90,-66],[135,-69],[180,-65],[180,-90],[-180,-90],[-180,-65]] }
+    ];
+
+    const state = {
+      centerLon: 18,
+      centerLat: 12,
+      zoom: 1,
+      autoSpin: true,
+      showLabels: true,
+      selected: null,
+      target: null,
+      compare: [],
+      quiz: null,
+      quizOpen: false,
+      lastInputAt: 0
+    };
+
+    let view = { w: 0, h: 0, dpr: 1, cx: 0, cy: 0, r: 180 };
+    let hitTargets = [];
+    let stars = [];
+    let pointerStart = null;
+    let activePointers = new Map();
+    let pinchStart = null;
+    let needsTexture = true;
+    let textureKey = "";
+    let lastFrame = performance.now();
+    let toastTimer = 0;
+
+    const landCanvas = document.createElement("canvas");
+    landCanvas.width = MAP_W;
+    landCanvas.height = MAP_H;
+    const landCtx = landCanvas.getContext("2d");
+    buildLandTexture();
+    const landPixels = landCtx.getImageData(0, 0, MAP_W, MAP_H).data;
+
+    const globeTexture = document.createElement("canvas");
+    const globeTextureCtx = globeTexture.getContext("2d");
+
+    const byCode = new Map(COUNTRIES.map((country) => [country.cc, country]));
+    const todayCountries = pickTodayCountries();
+    statusText.textContent = `${COUNTRIES.length} countries / capitals / flags`;
+
+    function buildLandTexture() {
+      landCtx.clearRect(0, 0, MAP_W, MAP_H);
+      for (const land of LANDMASSES) {
+        landCtx.beginPath();
+        land.points.forEach(([lon, lat], index) => {
+          const x = ((lon + 180) / 360) * MAP_W;
+          const y = ((90 - lat) / 180) * MAP_H;
+          if (index === 0) landCtx.moveTo(x, y);
+          else landCtx.lineTo(x, y);
+        });
+        landCtx.closePath();
+        landCtx.fillStyle = land.color;
+        landCtx.fill();
+      }
+    }
+
+    function flagFromCode(code) {
+      return code
+        .toUpperCase()
+        .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function normalizeLon(lon) {
+      return ((((lon + 180) % 360) + 360) % 360) - 180;
+    }
+
+    function lerpAngle(from, to, amount) {
+      const diff = normalizeLon(to - from);
+      return normalizeLon(from + diff * amount);
+    }
+
+    function seededRandom(seed) {
+      let value = seed >>> 0;
+      return () => {
+        value = (value * 1664525 + 1013904223) >>> 0;
+        return value / 4294967296;
+      };
+    }
+
+    function pickTodayCountries() {
+      const now = new Date();
+      const seed = Number(`${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`);
+      const random = seededRandom(seed);
+      return [...COUNTRIES].sort(() => random() - 0.5).slice(0, 5);
+    }
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      view.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      view.w = rect.width;
+      view.h = rect.height;
+      canvas.width = Math.floor(view.w * view.dpr);
+      canvas.height = Math.floor(view.h * view.dpr);
+      ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
+
+      const mobile = view.w < 780;
+      view.r = Math.min(
+        mobile ? view.w * 0.44 : view.w * 0.31,
+        mobile ? view.h * 0.28 : view.h * 0.40,
+        mobile ? 220 : 360
+      ) * state.zoom;
+      view.cx = mobile ? view.w * 0.50 : view.w * 0.52;
+      view.cy = mobile ? view.h * 0.39 : view.h * 0.52;
+
+      stars = makeStars(Math.floor((view.w * view.h) / 9000));
+      needsTexture = true;
+    }
+
+    function makeStars(count) {
+      const random = seededRandom(9421);
+      return Array.from({ length: count }, () => ({
+        x: random(),
+        y: random(),
+        s: 0.45 + random() * 1.45,
+        a: 0.18 + random() * 0.55
+      }));
+    }
+
+    /*
+      緯度・経度を画面座標に変換する関数です。
+      正射投影は「地球を遠くから見たときの見え方」に近いので、
+      z が 0 より大きい点だけを手前側として描きます。
+    */
+    function project(lat, lon) {
+      const phi = lat * DEG;
+      const lambda = normalizeLon(lon - state.centerLon) * DEG;
+      const phi0 = state.centerLat * DEG;
+      const cosPhi = Math.cos(phi);
+      const sinPhi = Math.sin(phi);
+      const cosLambda = Math.cos(lambda);
+      const sinLambda = Math.sin(lambda);
+      const sinPhi0 = Math.sin(phi0);
+      const cosPhi0 = Math.cos(phi0);
+
+      const x = cosPhi * sinLambda;
+      const y = sinPhi * cosPhi0 - cosPhi * cosLambda * sinPhi0;
+      const z = sinPhi * sinPhi0 + cosPhi * cosLambda * cosPhi0;
+
+      return {
+        x: view.cx + x * view.r,
+        y: view.cy - y * view.r,
+        z,
+        visible: z > 0
+      };
+    }
+
+    /*
+      画面上の丸い地球から緯度・経度を逆算します。
+      これにより、あらかじめ描いた2Dの大陸テクスチャを3D地球に貼れます。
+    */
+    function renderGlobeTexture() {
+      const size = Math.max(220, Math.min(560, Math.floor(view.r * 2)));
+      const key = `${size}|${state.centerLon.toFixed(2)}|${state.centerLat.toFixed(2)}`;
+      if (!needsTexture && key === textureKey) return;
+
+      textureKey = key;
+      needsTexture = false;
+      globeTexture.width = size;
+      globeTexture.height = size;
+
+      const image = globeTextureCtx.createImageData(size, size);
+      const pixels = image.data;
+      const mid = size / 2;
+      const phi0 = state.centerLat * DEG;
+      const sinPhi0 = Math.sin(phi0);
+      const cosPhi0 = Math.cos(phi0);
+
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          const dx = (x + 0.5 - mid) / mid;
+          const dy = -(y + 0.5 - mid) / mid;
+          const dist2 = dx * dx + dy * dy;
+          const out = (y * size + x) * 4;
+
+          if (dist2 > 1) {
+            pixels[out + 3] = 0;
+            continue;
+          }
+
+          const z = Math.sqrt(1 - dist2);
+          const sinLat = clamp(dy * cosPhi0 + z * sinPhi0, -1, 1);
+          const lat = Math.asin(sinLat) / DEG;
+          const lonDelta = Math.atan2(dx, z * cosPhi0 - dy * sinPhi0) / DEG;
+          const lon = normalizeLon(state.centerLon + lonDelta);
+
+          const mapX = Math.floor(((lon + 180) / 360) * MAP_W) % MAP_W;
+          const mapY = clamp(Math.floor(((90 - lat) / 180) * MAP_H), 0, MAP_H - 1);
+          const mapIndex = (mapY * MAP_W + mapX) * 4;
+          const hasLand = landPixels[mapIndex + 3] > 0;
+          const edgeShade = 0.40 + z * 0.64;
+
+          if (hasLand) {
+            const terrain = 0.93 + 0.07 * Math.sin((lon * 12.9898 + lat * 78.233) * DEG * 22);
+            pixels[out] = landPixels[mapIndex] * edgeShade * terrain;
+            pixels[out + 1] = landPixels[mapIndex + 1] * edgeShade * terrain;
+            pixels[out + 2] = landPixels[mapIndex + 2] * edgeShade * terrain;
+          } else {
+            const equatorGlow = 0.5 + 0.5 * Math.cos(lat * DEG);
+            pixels[out] = (12 + 28 * z + 10 * equatorGlow) * edgeShade;
+            pixels[out + 1] = (62 + 82 * z + 12 * equatorGlow) * edgeShade;
+            pixels[out + 2] = (94 + 112 * z + 8 * equatorGlow) * edgeShade;
+          }
+
+          pixels[out + 3] = 255;
+        }
+      }
+
+      globeTextureCtx.putImageData(image, 0, 0);
+    }
+
+    function drawBackground() {
+      const gradient = ctx.createLinearGradient(0, 0, view.w, view.h);
+      gradient.addColorStop(0, "#06121c");
+      gradient.addColorStop(0.48, "#0a2430");
+      gradient.addColorStop(1, "#171812");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, view.w, view.h);
+
+      ctx.save();
+      for (const star of stars) {
+        ctx.globalAlpha = star.a;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(star.x * view.w, star.y * view.h, star.s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawGlobeBase() {
+      renderGlobeTexture();
+      ctx.save();
+      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+      ctx.shadowBlur = 35;
+      ctx.drawImage(globeTexture, view.cx - view.r, view.cy - view.r, view.r * 2, view.r * 2);
+      ctx.restore();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(view.cx, view.cy, view.r, 0, Math.PI * 2);
+      ctx.clip();
+
+      const light = ctx.createRadialGradient(
+        view.cx - view.r * 0.35,
+        view.cy - view.r * 0.45,
+        view.r * 0.08,
+        view.cx,
+        view.cy,
+        view.r
+      );
+      light.addColorStop(0, "rgba(255, 255, 255, 0.18)");
+      light.addColorStop(0.42, "rgba(255, 255, 255, 0.03)");
+      light.addColorStop(1, "rgba(0, 0, 0, 0.34)");
+      ctx.fillStyle = light;
+      ctx.fillRect(view.cx - view.r, view.cy - view.r, view.r * 2, view.r * 2);
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.arc(view.cx, view.cy, view.r, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(226, 245, 233, 0.28)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
+
+    function drawGeoPolyline(points, options) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(view.cx, view.cy, view.r, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.beginPath();
+      let drawing = false;
+
+      for (const [lat, lon] of points) {
+        const p = project(lat, lon);
+        if (!p.visible) {
+          drawing = false;
+          continue;
+        }
+        if (!drawing) {
+          ctx.moveTo(p.x, p.y);
+          drawing = true;
+        } else {
+          ctx.lineTo(p.x, p.y);
+        }
+      }
+
+      ctx.strokeStyle = options.color;
+      ctx.lineWidth = options.width;
+      if (options.dash) ctx.setLineDash(options.dash);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawGrid() {
+      for (let lat = -60; lat <= 60; lat += 30) {
+        const points = [];
+        for (let lon = -180; lon <= 180; lon += 3) points.push([lat, lon]);
+        drawGeoPolyline(points, { color: "rgba(235, 244, 229, 0.16)", width: lat === 0 ? 1.2 : 0.8, dash: lat === 0 ? [] : [4, 8] });
+      }
+
+      for (let lon = -180; lon < 180; lon += 30) {
+        const points = [];
+        for (let lat = -80; lat <= 80; lat += 3) points.push([lat, lon]);
+        drawGeoPolyline(points, { color: "rgba(235, 244, 229, 0.12)", width: 0.8, dash: [3, 9] });
+      }
+    }
+
+    function drawCompareArc() {
+      if (state.compare.length !== 2) return;
+      const [a, b] = state.compare;
+      const points = [];
+      for (let step = 0; step <= 80; step += 1) {
+        points.push(interpolateGreatCircle(a, b, step / 80));
+      }
+      drawGeoPolyline(points, { color: "rgba(255, 184, 92, 0.9)", width: 2.2 });
+    }
+
+    function drawMarkers() {
+      hitTargets = [];
+      const visible = COUNTRIES.map((country) => ({ country, p: project(country.lat, country.lon) }))
+        .filter((item) => item.p.visible)
+        .sort((a, b) => a.p.z - b.p.z);
+
+      ctx.save();
+      ctx.font = "12px ui-sans-serif, system-ui, sans-serif";
+      ctx.textBaseline = "middle";
+
+      for (const item of visible) {
+        const { country, p } = item;
+        const isSelected = state.selected?.cc === country.cc;
+        const isToday = todayCountries.some((today) => today.cc === country.cc);
+        const radius = (isSelected ? 6.5 : 3.7) + p.z * 2.2;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius + 5, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? "rgba(255, 184, 92, 0.18)" : isToday ? "rgba(112, 212, 139, 0.13)" : "rgba(255, 255, 255, 0.08)";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? "#ffb85c" : isToday ? "#70d48b" : "#f4f7ee";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(6, 15, 20, 0.75)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        hitTargets.push({ x: p.x, y: p.y, radius: radius + 12, country });
+      }
+
+      if (state.showLabels) drawLabels(visible);
+      ctx.restore();
+    }
+
+    function drawLabels(visible) {
+      const placed = [];
+      const maxLabels = view.w < 780 ? 16 : 34;
+      const priority = [...visible]
+        .sort((a, b) => labelScore(b) - labelScore(a))
+        .slice(0, maxLabels);
+
+      for (const item of priority) {
+        const { country, p } = item;
+        const isSelected = state.selected?.cc === country.cc;
+        const text = `${flagFromCode(country.cc)} ${country.name}`;
+        ctx.font = `${isSelected ? 700 : 600} ${isSelected ? 13 : 12}px ui-sans-serif, system-ui, sans-serif`;
+        const width = Math.min(ctx.measureText(text).width + 16, 160);
+        const height = 24;
+        const x = clamp(p.x + 12, 8, view.w - width - 8);
+        const y = clamp(p.y - height / 2, 8, view.h - height - 8);
+        const box = { x, y, w: width, h: height };
+
+        if (!isSelected && placed.some((other) => overlaps(box, other))) continue;
+        placed.push(box);
+
+        ctx.fillStyle = isSelected ? "rgba(255, 184, 92, 0.92)" : "rgba(7, 19, 28, 0.72)";
+        roundRect(ctx, x, y, width, height, 7);
+        ctx.fill();
+
+        ctx.fillStyle = isSelected ? "#15110b" : "#f5f7ef";
+        ctx.fillText(text, x + 8, y + height / 2 + 0.5, width - 12);
+      }
+    }
+
+    function labelScore(item) {
+      const country = item.country;
+      let score = item.p.z * 100;
+      if (state.selected?.cc === country.cc) score += 1000;
+      if (todayCountries.some((today) => today.cc === country.cc)) score += 35;
+      if (["JP", "US", "CN", "IN", "GB", "FR", "BR", "AU", "EG", "ZA"].includes(country.cc)) score += 18;
+      return score;
+    }
+
+    function overlaps(a, b) {
+      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    function roundRect(context, x, y, w, h, r) {
+      context.beginPath();
+      context.moveTo(x + r, y);
+      context.arcTo(x + w, y, x + w, y + h, r);
+      context.arcTo(x + w, y + h, x, y + h, r);
+      context.arcTo(x, y + h, x, y, r);
+      context.arcTo(x, y, x + w, y, r);
+      context.closePath();
+    }
+
+    function draw() {
+      drawBackground();
+      drawGlobeBase();
+      drawGrid();
+      drawCompareArc();
+      drawMarkers();
+    }
+
+    function animate(now) {
+      const dt = Math.min(0.05, (now - lastFrame) / 1000);
+      lastFrame = now;
+
+      if (state.autoSpin && performance.now() - state.lastInputAt > 1800 && !state.target) {
+        state.centerLon = normalizeLon(state.centerLon + dt * 2.8);
+        needsTexture = true;
+      }
+
+      if (state.target) {
+        state.centerLon = lerpAngle(state.centerLon, state.target.lon, 0.08);
+        state.centerLat += (state.target.lat - state.centerLat) * 0.08;
+        needsTexture = true;
+        if (Math.abs(normalizeLon(state.centerLon - state.target.lon)) < 0.2 && Math.abs(state.centerLat - state.target.lat) < 0.2) {
+          state.centerLon = state.target.lon;
+          state.centerLat = state.target.lat;
+          state.target = null;
+        }
+      }
+
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    function setSelected(country, syncUrl = true) {
+      state.selected = country;
+      state.target = {
+        lon: country.lon,
+        lat: clamp(country.lat, -55, 72)
+      };
+      state.autoSpin = false;
+      document.getElementById("spinButton").classList.toggle("is-active", state.autoSpin);
+      renderInfo();
+      if (syncUrl) writeHash();
+      needsTexture = true;
+    }
+
+    function renderInfo() {
+      if (!state.selected) {
+        const chips = todayCountries.map((country) => `
+          <button class="chip" type="button" data-country="${country.cc}">
+            <span>${flagFromCode(country.cc)}</span><span>${country.name}</span>
+          </button>
+        `).join("");
+
+        infoSheet.innerHTML = `
+          <div class="sheet-inner">
+            <div class="country-head">
+              <div class="flag">◎</div>
+              <div>
+                <h2>今日の5か国</h2>
+                <p>日替わりで眺める入口</p>
+              </div>
+            </div>
+            <div class="chips" style="margin-top: 12px;">${chips}</div>
+            ${renderCompareNote()}
+          </div>
+        `;
+        return;
+      }
+
+      const country = state.selected;
+      infoSheet.innerHTML = `
+        <div class="sheet-inner">
+          <div class="country-head">
+            <div class="flag">${flagFromCode(country.cc)}</div>
+            <div>
+              <h2>${country.name}</h2>
+              <p>${country.en} / ${country.cc}</p>
+            </div>
+          </div>
+
+          <div class="facts">
+            <div class="fact"><b>首都</b><span>${country.capital}</span></div>
+            <div class="fact"><b>地域</b><span>${country.region}</span></div>
+            <div class="fact"><b>緯度</b><span>${formatLat(country.lat)}</span></div>
+            <div class="fact"><b>経度</b><span>${formatLon(country.lon)}</span></div>
+          </div>
+
+          <div class="sheet-actions">
+            <button class="action-button is-primary" type="button" data-compare="${country.cc}">距離に追加</button>
+            <button class="action-button" type="button" data-quiz-region="${country.region}">この地域から出題</button>
+          </div>
+          ${renderCompareNote()}
+        </div>
+      `;
+    }
+
+    function renderCompareNote() {
+      if (state.compare.length === 0) return `<p class="compare-note">距離メモ: 未選択</p>`;
+      if (state.compare.length === 1) {
+        const country = state.compare[0];
+        return `<p class="compare-note">距離メモ: ${flagFromCode(country.cc)} ${country.name} を保存中</p>`;
+      }
+      const [a, b] = state.compare;
+      return `<p class="compare-note">${flagFromCode(a.cc)} ${a.capital} ↔ ${flagFromCode(b.cc)} ${b.capital}: 約 ${Math.round(distanceKm(a, b)).toLocaleString("ja-JP")} km</p>`;
+    }
+
+    function formatLat(lat) {
+      return `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? "N" : "S"}`;
+    }
+
+    function formatLon(lon) {
+      return `${Math.abs(lon).toFixed(1)}°${lon >= 0 ? "E" : "W"}`;
+    }
+
+    /*
+      ハーサイン式で2点間の球面距離を求めます。
+      地球は完全な球ではありませんが、学習用の目安としては十分扱いやすい式です。
+    */
+    function distanceKm(a, b) {
+      const lat1 = a.lat * DEG;
+      const lat2 = b.lat * DEG;
+      const dLat = (b.lat - a.lat) * DEG;
+      const dLon = (b.lon - a.lon) * DEG;
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+      return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
+    }
+
+    function toVec(country) {
+      const lat = country.lat * DEG;
+      const lon = country.lon * DEG;
+      return {
+        x: Math.cos(lat) * Math.cos(lon),
+        y: Math.sin(lat),
+        z: Math.cos(lat) * Math.sin(lon)
+      };
+    }
+
+    function fromVec(vec) {
+      const hyp = Math.hypot(vec.x, vec.z);
+      return [Math.atan2(vec.y, hyp) / DEG, Math.atan2(vec.z, vec.x) / DEG];
+    }
+
+    function interpolateGreatCircle(a, b, t) {
+      const av = toVec(a);
+      const bv = toVec(b);
+      const dot = clamp(av.x * bv.x + av.y * bv.y + av.z * bv.z, -1, 1);
+      const omega = Math.acos(dot);
+      if (omega < 0.0001) return [a.lat, a.lon];
+      const sinOmega = Math.sin(omega);
+      const s1 = Math.sin((1 - t) * omega) / sinOmega;
+      const s2 = Math.sin(t * omega) / sinOmega;
+      return fromVec({
+        x: av.x * s1 + bv.x * s2,
+        y: av.y * s1 + bv.y * s2,
+        z: av.z * s1 + bv.z * s2
+      });
+    }
+
+    function addCompare(country) {
+      if (state.compare.some((item) => item.cc === country.cc)) {
+        state.compare = state.compare.filter((item) => item.cc !== country.cc);
+      } else {
+        state.compare = [...state.compare, country].slice(-2);
+      }
+      renderInfo();
+    }
+
+    function updateSearch() {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) {
+        searchResults.classList.remove("is-open");
+        searchResults.innerHTML = "";
+        return;
+      }
+
+      const results = COUNTRIES
+        .filter((country) => [country.name, country.en, country.capital, country.region, country.cc].some((value) => value.toLowerCase().includes(query)))
+        .slice(0, 10);
+
+      searchResults.innerHTML = results.map((country) => `
+        <button class="result-button" type="button" data-country="${country.cc}">
+          <span>${flagFromCode(country.cc)}</span>
+          <span>${country.name}<small>${country.capital} / ${country.region}</small></span>
+        </button>
+      `).join("");
+      searchResults.classList.toggle("is-open", results.length > 0);
+    }
+
+    function startQuiz(region = null) {
+      const pool = region ? COUNTRIES.filter((country) => country.region === region) : COUNTRIES;
+      const answer = pool[Math.floor(Math.random() * pool.length)];
+      const wrongPool = COUNTRIES.filter((country) => country.cc !== answer.cc);
+      const options = [answer];
+      while (options.length < 4) {
+        const candidate = wrongPool[Math.floor(Math.random() * wrongPool.length)];
+        if (!options.some((country) => country.cc === candidate.cc)) options.push(candidate);
+      }
+      options.sort(() => Math.random() - 0.5);
+
+      state.quiz = { answer, options, answered: null };
+      state.quizOpen = true;
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      if (!state.quizOpen || !state.quiz) {
+        quizPanel.classList.remove("is-open");
+        quizPanel.innerHTML = "";
+        return;
+      }
+
+      const { answer, options, answered } = state.quiz;
+      const optionHtml = options.map((country) => {
+        let klass = "";
+        if (answered) {
+          if (country.cc === answer.cc) klass = "is-correct";
+          else if (country.cc === answered.cc) klass = "is-wrong";
+        }
+        return `<button class="option-button ${klass}" type="button" data-answer="${country.cc}">${flagFromCode(country.cc)} ${country.name}</button>`;
+      }).join("");
+
+      quizPanel.innerHTML = `
+        <div class="sheet-inner">
+          <h2>首都クイズ</h2>
+          <p>「${answer.capital}」が首都の国は？</p>
+          <div class="quiz-options">${optionHtml}</div>
+        </div>
+      `;
+      quizPanel.classList.add("is-open");
+    }
+
+    function answerQuiz(code) {
+      if (!state.quiz) return;
+      const picked = byCode.get(code);
+      state.quiz.answered = picked;
+      renderQuiz();
+      if (picked.cc === state.quiz.answer.cc) {
+        setSelected(picked);
+        showToast("正解です");
+        setTimeout(() => startQuiz(state.selected?.region), 900);
+      } else {
+        showToast(`正解は ${state.quiz.answer.name}`);
+        setSelected(state.quiz.answer);
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("is-open");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("is-open"), 1800);
+    }
+
+    function writeHash() {
+      const params = new URLSearchParams();
+      if (state.selected) params.set("country", state.selected.cc);
+      params.set("lon", state.centerLon.toFixed(1));
+      params.set("lat", state.centerLat.toFixed(1));
+      history.replaceState(null, "", `#${params.toString()}`);
+    }
+
+    function readHash() {
+      const params = new URLSearchParams(location.hash.slice(1));
+      const country = byCode.get(params.get("country"));
+      const lon = Number(params.get("lon"));
+      const lat = Number(params.get("lat"));
+
+      if (Number.isFinite(lon)) state.centerLon = normalizeLon(lon);
+      if (Number.isFinite(lat)) state.centerLat = clamp(lat, -80, 80);
+      if (country) {
+        state.selected = country;
+        state.target = { lon: country.lon, lat: clamp(country.lat, -55, 72) };
+        state.autoSpin = false;
+        document.getElementById("spinButton").classList.remove("is-active");
+      }
+    }
+
+    function copyShareUrl() {
+      writeHash();
+      const url = location.href;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(url).then(() => showToast("URLをコピーしました")).catch(() => showToast(url));
+      } else {
+        showToast(url);
+      }
+    }
+
+    function countryFromPointer(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      let best = null;
+      let bestDistance = Infinity;
+
+      for (const target of hitTargets) {
+        const distance = Math.hypot(target.x - x, target.y - y);
+        if (distance < target.radius && distance < bestDistance) {
+          best = target.country;
+          bestDistance = distance;
+        }
+      }
+      return best;
+    }
+
+    function onPointerDown(event) {
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      canvas.setPointerCapture(event.pointerId);
+      state.lastInputAt = performance.now();
+      state.target = null;
+
+      if (activePointers.size === 1) {
+        pointerStart = {
+          x: event.clientX,
+          y: event.clientY,
+          lon: state.centerLon,
+          lat: state.centerLat,
+          moved: false
+        };
+      } else if (activePointers.size === 2) {
+        const points = [...activePointers.values()];
+        pinchStart = {
+          distance: Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y),
+          zoom: state.zoom
+        };
+      }
+    }
+
+    function onPointerMove(event) {
+      if (!activePointers.has(event.pointerId)) return;
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      state.lastInputAt = performance.now();
+
+      if (activePointers.size === 2 && pinchStart) {
+        const points = [...activePointers.values()];
+        const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+        state.zoom = clamp(pinchStart.zoom * (distance / pinchStart.distance), 0.82, 1.45);
+        resize();
+        return;
+      }
+
+      if (!pointerStart) return;
+      const dx = event.clientX - pointerStart.x;
+      const dy = event.clientY - pointerStart.y;
+      pointerStart.moved = pointerStart.moved || Math.hypot(dx, dy) > 8;
+      state.centerLon = normalizeLon(pointerStart.lon - (dx / view.r) * 70);
+      state.centerLat = clamp(pointerStart.lat + (dy / view.r) * 55, -80, 80);
+      needsTexture = true;
+    }
+
+    function onPointerUp(event) {
+      const wasTap = pointerStart && !pointerStart.moved && activePointers.size === 1;
+      if (wasTap) {
+        const country = countryFromPointer(event.clientX, event.clientY);
+        if (country) setSelected(country);
+      }
+      activePointers.delete(event.pointerId);
+      if (activePointers.size === 0) {
+        pointerStart = null;
+        pinchStart = null;
+      }
+    }
+
+    function onWheel(event) {
+      event.preventDefault();
+      state.zoom = clamp(state.zoom + (event.deltaY > 0 ? -0.06 : 0.06), 0.82, 1.45);
+      state.lastInputAt = performance.now();
+      resize();
+    }
+
+    document.getElementById("spinButton").addEventListener("click", (event) => {
+      state.autoSpin = !state.autoSpin;
+      state.target = null;
+      event.currentTarget.classList.toggle("is-active", state.autoSpin);
+    });
+
+    document.getElementById("labelButton").addEventListener("click", (event) => {
+      state.showLabels = !state.showLabels;
+      event.currentTarget.classList.toggle("is-active", state.showLabels);
+    });
+
+    document.getElementById("quizButton").addEventListener("click", () => {
+      if (state.quizOpen) {
+        state.quizOpen = false;
+        renderQuiz();
+      } else {
+        startQuiz();
+      }
+    });
+
+    document.getElementById("resetButton").addEventListener("click", () => {
+      state.centerLon = 18;
+      state.centerLat = 12;
+      state.zoom = 1;
+      state.target = null;
+      state.compare = [];
+      state.selected = null;
+      state.autoSpin = true;
+      document.getElementById("spinButton").classList.add("is-active");
+      searchInput.value = "";
+      updateSearch();
+      renderInfo();
+      history.replaceState(null, "", location.pathname);
+      resize();
+    });
+
+    document.getElementById("homeButton").addEventListener("click", () => setSelected(byCode.get("JP")));
+    document.getElementById("shareButton").addEventListener("click", copyShareUrl);
+
+    searchInput.addEventListener("input", updateSearch);
+    searchInput.addEventListener("focus", updateSearch);
+
+    document.addEventListener("click", (event) => {
+      const countryButton = event.target.closest("[data-country]");
+      if (countryButton) {
+        const country = byCode.get(countryButton.dataset.country);
+        if (country) {
+          setSelected(country);
+          searchResults.classList.remove("is-open");
+          searchInput.blur();
+        }
+      }
+
+      const compareButton = event.target.closest("[data-compare]");
+      if (compareButton) {
+        const country = byCode.get(compareButton.dataset.compare);
+        if (country) addCompare(country);
+      }
+
+      const quizRegionButton = event.target.closest("[data-quiz-region]");
+      if (quizRegionButton) startQuiz(quizRegionButton.dataset.quizRegion);
+
+      const answerButton = event.target.closest("[data-answer]");
+      if (answerButton) answerQuiz(answerButton.dataset.answer);
+
+      if (!event.target.closest(".search")) searchResults.classList.remove("is-open");
+    });
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", resize);
+    window.addEventListener("hashchange", () => {
+      readHash();
+      renderInfo();
+      needsTexture = true;
+    });
+
+    readHash();
+    resize();
+    renderInfo();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
