@@ -324,11 +324,16 @@
       color: #ffe0a8;
     }
 
-    .compare-note {
+    .compare-note,
+    .learning-note {
       margin-top: 10px;
       color: #ffd8a1;
       font-size: 13px;
       line-height: 1.5;
+    }
+
+    .learning-note {
+      color: #d9e2dc;
     }
 
     .quiz-panel {
@@ -349,6 +354,14 @@
       display: block;
     }
 
+    .quiz-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
     .quiz-panel h2 {
       margin: 0 0 8px;
       font-size: 18px;
@@ -356,10 +369,22 @@
     }
 
     .quiz-panel p {
-      margin: 0 0 12px;
+      margin: 0;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
+    }
+
+    .mini-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--ink);
     }
 
     .option-button {
@@ -375,6 +400,17 @@
     .option-button.is-wrong {
       border-color: rgba(255, 123, 114, 0.72);
       background: rgba(255, 123, 114, 0.14);
+    }
+
+    .quiz-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .quiz-actions .action-button {
+      min-width: 78px;
     }
 
     .toast {
@@ -501,207 +537,4280 @@
       cc は2文字の国コードです。flagFromCode() で国旗絵文字に変換します。
     */
     const COUNTRIES = [
-      { cc: "JP", name: "日本", en: "Japan", capital: "東京", lat: 35.69, lon: 139.69, region: "アジア" },
-      { cc: "KR", name: "韓国", en: "South Korea", capital: "ソウル", lat: 37.57, lon: 126.98, region: "アジア" },
-      { cc: "KP", name: "北朝鮮", en: "North Korea", capital: "平壌", lat: 39.04, lon: 125.76, region: "アジア" },
-      { cc: "CN", name: "中国", en: "China", capital: "北京", lat: 39.90, lon: 116.40, region: "アジア" },
-      { cc: "MN", name: "モンゴル", en: "Mongolia", capital: "ウランバートル", lat: 47.92, lon: 106.92, region: "アジア" },
-      { cc: "TW", name: "台湾", en: "Taiwan", capital: "台北", lat: 25.03, lon: 121.56, region: "アジア" },
-      { cc: "IN", name: "インド", en: "India", capital: "ニューデリー", lat: 28.61, lon: 77.21, region: "アジア" },
-      { cc: "PK", name: "パキスタン", en: "Pakistan", capital: "イスラマバード", lat: 33.69, lon: 73.06, region: "アジア" },
-      { cc: "BD", name: "バングラデシュ", en: "Bangladesh", capital: "ダッカ", lat: 23.81, lon: 90.41, region: "アジア" },
-      { cc: "LK", name: "スリランカ", en: "Sri Lanka", capital: "スリジャヤワルダナプラコッテ", lat: 6.89, lon: 79.90, region: "アジア" },
-      { cc: "NP", name: "ネパール", en: "Nepal", capital: "カトマンズ", lat: 27.72, lon: 85.32, region: "アジア" },
-      { cc: "BT", name: "ブータン", en: "Bhutan", capital: "ティンプー", lat: 27.47, lon: 89.64, region: "アジア" },
-      { cc: "MV", name: "モルディブ", en: "Maldives", capital: "マレ", lat: 4.18, lon: 73.51, region: "アジア" },
-      { cc: "MM", name: "ミャンマー", en: "Myanmar", capital: "ネピドー", lat: 19.76, lon: 96.08, region: "アジア" },
-      { cc: "TH", name: "タイ", en: "Thailand", capital: "バンコク", lat: 13.75, lon: 100.50, region: "アジア" },
-      { cc: "LA", name: "ラオス", en: "Laos", capital: "ビエンチャン", lat: 17.98, lon: 102.63, region: "アジア" },
-      { cc: "KH", name: "カンボジア", en: "Cambodia", capital: "プノンペン", lat: 11.56, lon: 104.93, region: "アジア" },
-      { cc: "VN", name: "ベトナム", en: "Vietnam", capital: "ハノイ", lat: 21.03, lon: 105.85, region: "アジア" },
-      { cc: "MY", name: "マレーシア", en: "Malaysia", capital: "クアラルンプール", lat: 3.14, lon: 101.69, region: "アジア" },
-      { cc: "SG", name: "シンガポール", en: "Singapore", capital: "シンガポール", lat: 1.35, lon: 103.82, region: "アジア" },
-      { cc: "ID", name: "インドネシア", en: "Indonesia", capital: "ジャカルタ", lat: -6.21, lon: 106.85, region: "アジア" },
-      { cc: "PH", name: "フィリピン", en: "Philippines", capital: "マニラ", lat: 14.60, lon: 120.98, region: "アジア" },
-      { cc: "BN", name: "ブルネイ", en: "Brunei", capital: "バンダルスリブガワン", lat: 4.90, lon: 114.94, region: "アジア" },
-      { cc: "TL", name: "東ティモール", en: "Timor-Leste", capital: "ディリ", lat: -8.56, lon: 125.57, region: "アジア" },
-      { cc: "KZ", name: "カザフスタン", en: "Kazakhstan", capital: "アスタナ", lat: 51.17, lon: 71.45, region: "アジア" },
-      { cc: "UZ", name: "ウズベキスタン", en: "Uzbekistan", capital: "タシュケント", lat: 41.31, lon: 69.28, region: "アジア" },
-      { cc: "TM", name: "トルクメニスタン", en: "Turkmenistan", capital: "アシガバート", lat: 37.96, lon: 58.33, region: "アジア" },
-      { cc: "KG", name: "キルギス", en: "Kyrgyzstan", capital: "ビシュケク", lat: 42.87, lon: 74.59, region: "アジア" },
-      { cc: "TJ", name: "タジキスタン", en: "Tajikistan", capital: "ドゥシャンベ", lat: 38.56, lon: 68.79, region: "アジア" },
-      { cc: "AF", name: "アフガニスタン", en: "Afghanistan", capital: "カブール", lat: 34.56, lon: 69.21, region: "アジア" },
-      { cc: "IR", name: "イラン", en: "Iran", capital: "テヘラン", lat: 35.69, lon: 51.39, region: "アジア" },
-      { cc: "IQ", name: "イラク", en: "Iraq", capital: "バグダッド", lat: 33.31, lon: 44.36, region: "アジア" },
-      { cc: "SA", name: "サウジアラビア", en: "Saudi Arabia", capital: "リヤド", lat: 24.71, lon: 46.68, region: "アジア" },
-      { cc: "AE", name: "アラブ首長国連邦", en: "United Arab Emirates", capital: "アブダビ", lat: 24.45, lon: 54.38, region: "アジア" },
-      { cc: "QA", name: "カタール", en: "Qatar", capital: "ドーハ", lat: 25.29, lon: 51.53, region: "アジア" },
-      { cc: "KW", name: "クウェート", en: "Kuwait", capital: "クウェート", lat: 29.38, lon: 47.98, region: "アジア" },
-      { cc: "BH", name: "バーレーン", en: "Bahrain", capital: "マナーマ", lat: 26.23, lon: 50.59, region: "アジア" },
-      { cc: "OM", name: "オマーン", en: "Oman", capital: "マスカット", lat: 23.59, lon: 58.41, region: "アジア" },
-      { cc: "YE", name: "イエメン", en: "Yemen", capital: "サナア", lat: 15.37, lon: 44.19, region: "アジア" },
-      { cc: "TR", name: "トルコ", en: "Turkey", capital: "アンカラ", lat: 39.93, lon: 32.86, region: "アジア" },
-      { cc: "IL", name: "イスラエル", en: "Israel", capital: "エルサレム", lat: 31.78, lon: 35.21, region: "アジア" },
-      { cc: "PS", name: "パレスチナ", en: "Palestine", capital: "ラマッラー", lat: 31.90, lon: 35.20, region: "アジア" },
-      { cc: "LB", name: "レバノン", en: "Lebanon", capital: "ベイルート", lat: 33.89, lon: 35.50, region: "アジア" },
-      { cc: "SY", name: "シリア", en: "Syria", capital: "ダマスカス", lat: 33.51, lon: 36.28, region: "アジア" },
-      { cc: "JO", name: "ヨルダン", en: "Jordan", capital: "アンマン", lat: 31.95, lon: 35.93, region: "アジア" },
-      { cc: "AM", name: "アルメニア", en: "Armenia", capital: "エレバン", lat: 40.18, lon: 44.51, region: "アジア" },
-      { cc: "AZ", name: "アゼルバイジャン", en: "Azerbaijan", capital: "バクー", lat: 40.41, lon: 49.87, region: "アジア" },
-      { cc: "GE", name: "ジョージア", en: "Georgia", capital: "トビリシ", lat: 41.72, lon: 44.79, region: "アジア" },
+      {
+            cc: "JP",
+            name: "日本",
+            en: "Japan",
+            capital: "東京",
+            lat: 35.69,
+            lon: 139.69,
+            region: "アジア"
+      },
+      {
+            cc: "KR",
+            name: "韓国",
+            en: "South Korea",
+            capital: "ソウル",
+            lat: 37.57,
+            lon: 126.98,
+            region: "アジア"
+      },
+      {
+            cc: "KP",
+            name: "北朝鮮",
+            en: "North Korea",
+            capital: "平壌",
+            lat: 39.04,
+            lon: 125.76,
+            region: "アジア"
+      },
+      {
+            cc: "CN",
+            name: "中国",
+            en: "China",
+            capital: "北京",
+            lat: 39.9,
+            lon: 116.4,
+            region: "アジア"
+      },
+      {
+            cc: "MN",
+            name: "モンゴル",
+            en: "Mongolia",
+            capital: "ウランバートル",
+            lat: 47.92,
+            lon: 106.92,
+            region: "アジア"
+      },
+      {
+            cc: "TW",
+            name: "台湾",
+            en: "Taiwan",
+            capital: "台北",
+            lat: 25.03,
+            lon: 121.56,
+            region: "アジア"
+      },
+      {
+            cc: "IN",
+            name: "インド",
+            en: "India",
+            capital: "ニューデリー",
+            lat: 28.61,
+            lon: 77.21,
+            region: "アジア"
+      },
+      {
+            cc: "PK",
+            name: "パキスタン",
+            en: "Pakistan",
+            capital: "イスラマバード",
+            lat: 33.69,
+            lon: 73.06,
+            region: "アジア"
+      },
+      {
+            cc: "BD",
+            name: "バングラデシュ",
+            en: "Bangladesh",
+            capital: "ダッカ",
+            lat: 23.81,
+            lon: 90.41,
+            region: "アジア"
+      },
+      {
+            cc: "LK",
+            name: "スリランカ",
+            en: "Sri Lanka",
+            capital: "スリジャヤワルダナプラコッテ",
+            lat: 6.89,
+            lon: 79.9,
+            region: "アジア"
+      },
+      {
+            cc: "NP",
+            name: "ネパール",
+            en: "Nepal",
+            capital: "カトマンズ",
+            lat: 27.72,
+            lon: 85.32,
+            region: "アジア"
+      },
+      {
+            cc: "BT",
+            name: "ブータン",
+            en: "Bhutan",
+            capital: "ティンプー",
+            lat: 27.47,
+            lon: 89.64,
+            region: "アジア"
+      },
+      {
+            cc: "MV",
+            name: "モルディブ",
+            en: "Maldives",
+            capital: "マレ",
+            lat: 4.18,
+            lon: 73.51,
+            region: "アジア"
+      },
+      {
+            cc: "MM",
+            name: "ミャンマー",
+            en: "Myanmar",
+            capital: "ネピドー",
+            lat: 19.76,
+            lon: 96.08,
+            region: "アジア"
+      },
+      {
+            cc: "TH",
+            name: "タイ",
+            en: "Thailand",
+            capital: "バンコク",
+            lat: 13.75,
+            lon: 100.5,
+            region: "アジア"
+      },
+      {
+            cc: "LA",
+            name: "ラオス",
+            en: "Laos",
+            capital: "ビエンチャン",
+            lat: 17.98,
+            lon: 102.63,
+            region: "アジア"
+      },
+      {
+            cc: "KH",
+            name: "カンボジア",
+            en: "Cambodia",
+            capital: "プノンペン",
+            lat: 11.56,
+            lon: 104.93,
+            region: "アジア"
+      },
+      {
+            cc: "VN",
+            name: "ベトナム",
+            en: "Vietnam",
+            capital: "ハノイ",
+            lat: 21.03,
+            lon: 105.85,
+            region: "アジア"
+      },
+      {
+            cc: "MY",
+            name: "マレーシア",
+            en: "Malaysia",
+            capital: "クアラルンプール",
+            lat: 3.14,
+            lon: 101.69,
+            region: "アジア"
+      },
+      {
+            cc: "SG",
+            name: "シンガポール",
+            en: "Singapore",
+            capital: "シンガポール",
+            lat: 1.35,
+            lon: 103.82,
+            region: "アジア"
+      },
+      {
+            cc: "ID",
+            name: "インドネシア",
+            en: "Indonesia",
+            capital: "ジャカルタ",
+            lat: -6.21,
+            lon: 106.85,
+            region: "アジア"
+      },
+      {
+            cc: "PH",
+            name: "フィリピン",
+            en: "Philippines",
+            capital: "マニラ",
+            lat: 14.6,
+            lon: 120.98,
+            region: "アジア"
+      },
+      {
+            cc: "BN",
+            name: "ブルネイ",
+            en: "Brunei",
+            capital: "バンダルスリブガワン",
+            lat: 4.9,
+            lon: 114.94,
+            region: "アジア"
+      },
+      {
+            cc: "TL",
+            name: "東ティモール",
+            en: "Timor-Leste",
+            capital: "ディリ",
+            lat: -8.56,
+            lon: 125.57,
+            region: "アジア"
+      },
+      {
+            cc: "KZ",
+            name: "カザフスタン",
+            en: "Kazakhstan",
+            capital: "アスタナ",
+            lat: 51.17,
+            lon: 71.45,
+            region: "アジア"
+      },
+      {
+            cc: "UZ",
+            name: "ウズベキスタン",
+            en: "Uzbekistan",
+            capital: "タシュケント",
+            lat: 41.31,
+            lon: 69.28,
+            region: "アジア"
+      },
+      {
+            cc: "TM",
+            name: "トルクメニスタン",
+            en: "Turkmenistan",
+            capital: "アシガバート",
+            lat: 37.96,
+            lon: 58.33,
+            region: "アジア"
+      },
+      {
+            cc: "KG",
+            name: "キルギス",
+            en: "Kyrgyzstan",
+            capital: "ビシュケク",
+            lat: 42.87,
+            lon: 74.59,
+            region: "アジア"
+      },
+      {
+            cc: "TJ",
+            name: "タジキスタン",
+            en: "Tajikistan",
+            capital: "ドゥシャンベ",
+            lat: 38.56,
+            lon: 68.79,
+            region: "アジア"
+      },
+      {
+            cc: "AF",
+            name: "アフガニスタン",
+            en: "Afghanistan",
+            capital: "カブール",
+            lat: 34.56,
+            lon: 69.21,
+            region: "アジア"
+      },
+      {
+            cc: "IR",
+            name: "イラン",
+            en: "Iran",
+            capital: "テヘラン",
+            lat: 35.69,
+            lon: 51.39,
+            region: "アジア"
+      },
+      {
+            cc: "IQ",
+            name: "イラク",
+            en: "Iraq",
+            capital: "バグダッド",
+            lat: 33.31,
+            lon: 44.36,
+            region: "アジア"
+      },
+      {
+            cc: "SA",
+            name: "サウジアラビア",
+            en: "Saudi Arabia",
+            capital: "リヤド",
+            lat: 24.71,
+            lon: 46.68,
+            region: "アジア"
+      },
+      {
+            cc: "AE",
+            name: "アラブ首長国連邦",
+            en: "United Arab Emirates",
+            capital: "アブダビ",
+            lat: 24.45,
+            lon: 54.38,
+            region: "アジア"
+      },
+      {
+            cc: "QA",
+            name: "カタール",
+            en: "Qatar",
+            capital: "ドーハ",
+            lat: 25.29,
+            lon: 51.53,
+            region: "アジア"
+      },
+      {
+            cc: "KW",
+            name: "クウェート",
+            en: "Kuwait",
+            capital: "クウェート",
+            lat: 29.38,
+            lon: 47.98,
+            region: "アジア"
+      },
+      {
+            cc: "BH",
+            name: "バーレーン",
+            en: "Bahrain",
+            capital: "マナーマ",
+            lat: 26.23,
+            lon: 50.59,
+            region: "アジア"
+      },
+      {
+            cc: "OM",
+            name: "オマーン",
+            en: "Oman",
+            capital: "マスカット",
+            lat: 23.59,
+            lon: 58.41,
+            region: "アジア"
+      },
+      {
+            cc: "YE",
+            name: "イエメン",
+            en: "Yemen",
+            capital: "サナア",
+            lat: 15.37,
+            lon: 44.19,
+            region: "アジア"
+      },
+      {
+            cc: "TR",
+            name: "トルコ",
+            en: "Turkey",
+            capital: "アンカラ",
+            lat: 39.93,
+            lon: 32.86,
+            region: "アジア"
+      },
+      {
+            cc: "IL",
+            name: "イスラエル",
+            en: "Israel",
+            capital: "エルサレム",
+            lat: 31.78,
+            lon: 35.21,
+            region: "アジア"
+      },
+      {
+            cc: "PS",
+            name: "パレスチナ",
+            en: "Palestine",
+            capital: "ラマッラー",
+            lat: 31.9,
+            lon: 35.2,
+            region: "アジア"
+      },
+      {
+            cc: "LB",
+            name: "レバノン",
+            en: "Lebanon",
+            capital: "ベイルート",
+            lat: 33.89,
+            lon: 35.5,
+            region: "アジア"
+      },
+      {
+            cc: "SY",
+            name: "シリア",
+            en: "Syria",
+            capital: "ダマスカス",
+            lat: 33.51,
+            lon: 36.28,
+            region: "アジア"
+      },
+      {
+            cc: "JO",
+            name: "ヨルダン",
+            en: "Jordan",
+            capital: "アンマン",
+            lat: 31.95,
+            lon: 35.93,
+            region: "アジア"
+      },
+      {
+            cc: "AM",
+            name: "アルメニア",
+            en: "Armenia",
+            capital: "エレバン",
+            lat: 40.18,
+            lon: 44.51,
+            region: "アジア"
+      },
+      {
+            cc: "AZ",
+            name: "アゼルバイジャン",
+            en: "Azerbaijan",
+            capital: "バクー",
+            lat: 40.41,
+            lon: 49.87,
+            region: "アジア"
+      },
+      {
+            cc: "GE",
+            name: "ジョージア",
+            en: "Georgia",
+            capital: "トビリシ",
+            lat: 41.72,
+            lon: 44.79,
+            region: "アジア"
+      },
+      {
+            cc: "GB",
+            name: "イギリス",
+            en: "United Kingdom",
+            capital: "ロンドン",
+            lat: 51.51,
+            lon: -0.13,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "IE",
+            name: "アイルランド",
+            en: "Ireland",
+            capital: "ダブリン",
+            lat: 53.35,
+            lon: -6.26,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "FR",
+            name: "フランス",
+            en: "France",
+            capital: "パリ",
+            lat: 48.86,
+            lon: 2.35,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "ES",
+            name: "スペイン",
+            en: "Spain",
+            capital: "マドリード",
+            lat: 40.42,
+            lon: -3.7,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "PT",
+            name: "ポルトガル",
+            en: "Portugal",
+            capital: "リスボン",
+            lat: 38.72,
+            lon: -9.14,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "AD",
+            name: "アンドラ",
+            en: "Andorra",
+            capital: "アンドラ・ラ・ベリャ",
+            lat: 42.51,
+            lon: 1.52,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "MC",
+            name: "モナコ",
+            en: "Monaco",
+            capital: "モナコ",
+            lat: 43.73,
+            lon: 7.42,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "BE",
+            name: "ベルギー",
+            en: "Belgium",
+            capital: "ブリュッセル",
+            lat: 50.85,
+            lon: 4.35,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "NL",
+            name: "オランダ",
+            en: "Netherlands",
+            capital: "アムステルダム",
+            lat: 52.37,
+            lon: 4.9,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "LU",
+            name: "ルクセンブルク",
+            en: "Luxembourg",
+            capital: "ルクセンブルク",
+            lat: 49.61,
+            lon: 6.13,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "DE",
+            name: "ドイツ",
+            en: "Germany",
+            capital: "ベルリン",
+            lat: 52.52,
+            lon: 13.4,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "CH",
+            name: "スイス",
+            en: "Switzerland",
+            capital: "ベルン",
+            lat: 46.95,
+            lon: 7.45,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "AT",
+            name: "オーストリア",
+            en: "Austria",
+            capital: "ウィーン",
+            lat: 48.21,
+            lon: 16.37,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "IT",
+            name: "イタリア",
+            en: "Italy",
+            capital: "ローマ",
+            lat: 41.9,
+            lon: 12.5,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "VA",
+            name: "バチカン",
+            en: "Vatican City",
+            capital: "バチカン市国",
+            lat: 41.9,
+            lon: 12.45,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "SM",
+            name: "サンマリノ",
+            en: "San Marino",
+            capital: "サンマリノ",
+            lat: 43.94,
+            lon: 12.45,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "MT",
+            name: "マルタ",
+            en: "Malta",
+            capital: "バレッタ",
+            lat: 35.9,
+            lon: 14.51,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "CY",
+            name: "キプロス",
+            en: "Cyprus",
+            capital: "ニコシア",
+            lat: 35.19,
+            lon: 33.38,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "LI",
+            name: "リヒテンシュタイン",
+            en: "Liechtenstein",
+            capital: "ファドゥーツ",
+            lat: 47.14,
+            lon: 9.52,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "PL",
+            name: "ポーランド",
+            en: "Poland",
+            capital: "ワルシャワ",
+            lat: 52.23,
+            lon: 21.01,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "CZ",
+            name: "チェコ",
+            en: "Czechia",
+            capital: "プラハ",
+            lat: 50.08,
+            lon: 14.44,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "SK",
+            name: "スロバキア",
+            en: "Slovakia",
+            capital: "ブラチスラバ",
+            lat: 48.15,
+            lon: 17.11,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "HU",
+            name: "ハンガリー",
+            en: "Hungary",
+            capital: "ブダペスト",
+            lat: 47.5,
+            lon: 19.04,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "SI",
+            name: "スロベニア",
+            en: "Slovenia",
+            capital: "リュブリャナ",
+            lat: 46.06,
+            lon: 14.51,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "HR",
+            name: "クロアチア",
+            en: "Croatia",
+            capital: "ザグレブ",
+            lat: 45.81,
+            lon: 15.98,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "BA",
+            name: "ボスニア・ヘルツェゴビナ",
+            en: "Bosnia and Herzegovina",
+            capital: "サラエボ",
+            lat: 43.86,
+            lon: 18.41,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "RS",
+            name: "セルビア",
+            en: "Serbia",
+            capital: "ベオグラード",
+            lat: 44.81,
+            lon: 20.46,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "ME",
+            name: "モンテネグロ",
+            en: "Montenegro",
+            capital: "ポドゴリツァ",
+            lat: 42.43,
+            lon: 19.26,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "AL",
+            name: "アルバニア",
+            en: "Albania",
+            capital: "ティラナ",
+            lat: 41.33,
+            lon: 19.82,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "MK",
+            name: "北マケドニア",
+            en: "North Macedonia",
+            capital: "スコピエ",
+            lat: 41.99,
+            lon: 21.43,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "GR",
+            name: "ギリシャ",
+            en: "Greece",
+            capital: "アテネ",
+            lat: 37.98,
+            lon: 23.73,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "BG",
+            name: "ブルガリア",
+            en: "Bulgaria",
+            capital: "ソフィア",
+            lat: 42.7,
+            lon: 23.32,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "RO",
+            name: "ルーマニア",
+            en: "Romania",
+            capital: "ブカレスト",
+            lat: 44.43,
+            lon: 26.1,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "MD",
+            name: "モルドバ",
+            en: "Moldova",
+            capital: "キシナウ",
+            lat: 47.01,
+            lon: 28.86,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "UA",
+            name: "ウクライナ",
+            en: "Ukraine",
+            capital: "キーウ",
+            lat: 50.45,
+            lon: 30.52,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "BY",
+            name: "ベラルーシ",
+            en: "Belarus",
+            capital: "ミンスク",
+            lat: 53.9,
+            lon: 27.56,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "LT",
+            name: "リトアニア",
+            en: "Lithuania",
+            capital: "ビリニュス",
+            lat: 54.69,
+            lon: 25.28,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "LV",
+            name: "ラトビア",
+            en: "Latvia",
+            capital: "リガ",
+            lat: 56.95,
+            lon: 24.11,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "EE",
+            name: "エストニア",
+            en: "Estonia",
+            capital: "タリン",
+            lat: 59.44,
+            lon: 24.75,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "FI",
+            name: "フィンランド",
+            en: "Finland",
+            capital: "ヘルシンキ",
+            lat: 60.17,
+            lon: 24.94,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "SE",
+            name: "スウェーデン",
+            en: "Sweden",
+            capital: "ストックホルム",
+            lat: 59.33,
+            lon: 18.07,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "NO",
+            name: "ノルウェー",
+            en: "Norway",
+            capital: "オスロ",
+            lat: 59.91,
+            lon: 10.75,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "DK",
+            name: "デンマーク",
+            en: "Denmark",
+            capital: "コペンハーゲン",
+            lat: 55.68,
+            lon: 12.57,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "IS",
+            name: "アイスランド",
+            en: "Iceland",
+            capital: "レイキャビク",
+            lat: 64.15,
+            lon: -21.94,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "RU",
+            name: "ロシア",
+            en: "Russia",
+            capital: "モスクワ",
+            lat: 55.76,
+            lon: 37.62,
+            region: "ヨーロッパ"
+      },
+      {
+            cc: "EG",
+            name: "エジプト",
+            en: "Egypt",
+            capital: "カイロ",
+            lat: 30.04,
+            lon: 31.24,
+            region: "アフリカ"
+      },
+      {
+            cc: "LY",
+            name: "リビア",
+            en: "Libya",
+            capital: "トリポリ",
+            lat: 32.89,
+            lon: 13.19,
+            region: "アフリカ"
+      },
+      {
+            cc: "TN",
+            name: "チュニジア",
+            en: "Tunisia",
+            capital: "チュニス",
+            lat: 36.81,
+            lon: 10.18,
+            region: "アフリカ"
+      },
+      {
+            cc: "DZ",
+            name: "アルジェリア",
+            en: "Algeria",
+            capital: "アルジェ",
+            lat: 36.75,
+            lon: 3.06,
+            region: "アフリカ"
+      },
+      {
+            cc: "MA",
+            name: "モロッコ",
+            en: "Morocco",
+            capital: "ラバト",
+            lat: 34.02,
+            lon: -6.84,
+            region: "アフリカ"
+      },
+      {
+            cc: "SD",
+            name: "スーダン",
+            en: "Sudan",
+            capital: "ハルツーム",
+            lat: 15.5,
+            lon: 32.56,
+            region: "アフリカ"
+      },
+      {
+            cc: "SS",
+            name: "南スーダン",
+            en: "South Sudan",
+            capital: "ジュバ",
+            lat: 4.86,
+            lon: 31.57,
+            region: "アフリカ"
+      },
+      {
+            cc: "ET",
+            name: "エチオピア",
+            en: "Ethiopia",
+            capital: "アディスアベバ",
+            lat: 9.03,
+            lon: 38.75,
+            region: "アフリカ"
+      },
+      {
+            cc: "ER",
+            name: "エリトリア",
+            en: "Eritrea",
+            capital: "アスマラ",
+            lat: 15.32,
+            lon: 38.93,
+            region: "アフリカ"
+      },
+      {
+            cc: "DJ",
+            name: "ジブチ",
+            en: "Djibouti",
+            capital: "ジブチ",
+            lat: 11.59,
+            lon: 43.15,
+            region: "アフリカ"
+      },
+      {
+            cc: "SO",
+            name: "ソマリア",
+            en: "Somalia",
+            capital: "モガディシュ",
+            lat: 2.05,
+            lon: 45.32,
+            region: "アフリカ"
+      },
+      {
+            cc: "KE",
+            name: "ケニア",
+            en: "Kenya",
+            capital: "ナイロビ",
+            lat: -1.29,
+            lon: 36.82,
+            region: "アフリカ"
+      },
+      {
+            cc: "UG",
+            name: "ウガンダ",
+            en: "Uganda",
+            capital: "カンパラ",
+            lat: 0.35,
+            lon: 32.58,
+            region: "アフリカ"
+      },
+      {
+            cc: "RW",
+            name: "ルワンダ",
+            en: "Rwanda",
+            capital: "キガリ",
+            lat: -1.95,
+            lon: 30.06,
+            region: "アフリカ"
+      },
+      {
+            cc: "BI",
+            name: "ブルンジ",
+            en: "Burundi",
+            capital: "ギテガ",
+            lat: -3.43,
+            lon: 29.92,
+            region: "アフリカ"
+      },
+      {
+            cc: "TZ",
+            name: "タンザニア",
+            en: "Tanzania",
+            capital: "ドドマ",
+            lat: -6.16,
+            lon: 35.75,
+            region: "アフリカ"
+      },
+      {
+            cc: "CD",
+            name: "コンゴ民主共和国",
+            en: "DR Congo",
+            capital: "キンシャサ",
+            lat: -4.33,
+            lon: 15.31,
+            region: "アフリカ"
+      },
+      {
+            cc: "CG",
+            name: "コンゴ共和国",
+            en: "Republic of the Congo",
+            capital: "ブラザビル",
+            lat: -4.27,
+            lon: 15.28,
+            region: "アフリカ"
+      },
+      {
+            cc: "GA",
+            name: "ガボン",
+            en: "Gabon",
+            capital: "リーブルビル",
+            lat: 0.42,
+            lon: 9.45,
+            region: "アフリカ"
+      },
+      {
+            cc: "GQ",
+            name: "赤道ギニア",
+            en: "Equatorial Guinea",
+            capital: "シウダー・デ・ラ・パス",
+            lat: 1.35,
+            lon: 10.49,
+            region: "アフリカ"
+      },
+      {
+            cc: "CM",
+            name: "カメルーン",
+            en: "Cameroon",
+            capital: "ヤウンデ",
+            lat: 3.87,
+            lon: 11.52,
+            region: "アフリカ"
+      },
+      {
+            cc: "NG",
+            name: "ナイジェリア",
+            en: "Nigeria",
+            capital: "アブジャ",
+            lat: 9.08,
+            lon: 7.4,
+            region: "アフリカ"
+      },
+      {
+            cc: "NE",
+            name: "ニジェール",
+            en: "Niger",
+            capital: "ニアメ",
+            lat: 13.51,
+            lon: 2.11,
+            region: "アフリカ"
+      },
+      {
+            cc: "TD",
+            name: "チャド",
+            en: "Chad",
+            capital: "ンジャメナ",
+            lat: 12.13,
+            lon: 15.05,
+            region: "アフリカ"
+      },
+      {
+            cc: "CF",
+            name: "中央アフリカ",
+            en: "Central African Republic",
+            capital: "バンギ",
+            lat: 4.39,
+            lon: 18.56,
+            region: "アフリカ"
+      },
+      {
+            cc: "GH",
+            name: "ガーナ",
+            en: "Ghana",
+            capital: "アクラ",
+            lat: 5.56,
+            lon: -0.2,
+            region: "アフリカ"
+      },
+      {
+            cc: "CI",
+            name: "コートジボワール",
+            en: "Cote d'Ivoire",
+            capital: "ヤムスクロ",
+            lat: 6.82,
+            lon: -5.28,
+            region: "アフリカ"
+      },
+      {
+            cc: "LR",
+            name: "リベリア",
+            en: "Liberia",
+            capital: "モンロビア",
+            lat: 6.3,
+            lon: -10.8,
+            region: "アフリカ"
+      },
+      {
+            cc: "SL",
+            name: "シエラレオネ",
+            en: "Sierra Leone",
+            capital: "フリータウン",
+            lat: 8.48,
+            lon: -13.23,
+            region: "アフリカ"
+      },
+      {
+            cc: "GN",
+            name: "ギニア",
+            en: "Guinea",
+            capital: "コナクリ",
+            lat: 9.64,
+            lon: -13.58,
+            region: "アフリカ"
+      },
+      {
+            cc: "GW",
+            name: "ギニアビサウ",
+            en: "Guinea-Bissau",
+            capital: "ビサウ",
+            lat: 11.86,
+            lon: -15.58,
+            region: "アフリカ"
+      },
+      {
+            cc: "SN",
+            name: "セネガル",
+            en: "Senegal",
+            capital: "ダカール",
+            lat: 14.69,
+            lon: -17.45,
+            region: "アフリカ"
+      },
+      {
+            cc: "GM",
+            name: "ガンビア",
+            en: "Gambia",
+            capital: "バンジュール",
+            lat: 13.45,
+            lon: -16.58,
+            region: "アフリカ"
+      },
+      {
+            cc: "MR",
+            name: "モーリタニア",
+            en: "Mauritania",
+            capital: "ヌアクショット",
+            lat: 18.08,
+            lon: -15.98,
+            region: "アフリカ"
+      },
+      {
+            cc: "ML",
+            name: "マリ",
+            en: "Mali",
+            capital: "バマコ",
+            lat: 12.64,
+            lon: -8,
+            region: "アフリカ"
+      },
+      {
+            cc: "BF",
+            name: "ブルキナファソ",
+            en: "Burkina Faso",
+            capital: "ワガドゥグー",
+            lat: 12.37,
+            lon: -1.53,
+            region: "アフリカ"
+      },
+      {
+            cc: "BJ",
+            name: "ベナン",
+            en: "Benin",
+            capital: "ポルトノボ",
+            lat: 6.5,
+            lon: 2.6,
+            region: "アフリカ"
+      },
+      {
+            cc: "TG",
+            name: "トーゴ",
+            en: "Togo",
+            capital: "ロメ",
+            lat: 6.13,
+            lon: 1.22,
+            region: "アフリカ"
+      },
+      {
+            cc: "CV",
+            name: "カーボベルデ",
+            en: "Cabo Verde",
+            capital: "プライア",
+            lat: 14.93,
+            lon: -23.51,
+            region: "アフリカ"
+      },
+      {
+            cc: "ST",
+            name: "サントメ・プリンシペ",
+            en: "Sao Tome and Principe",
+            capital: "サントメ",
+            lat: 0.34,
+            lon: 6.73,
+            region: "アフリカ"
+      },
+      {
+            cc: "AO",
+            name: "アンゴラ",
+            en: "Angola",
+            capital: "ルアンダ",
+            lat: -8.84,
+            lon: 13.23,
+            region: "アフリカ"
+      },
+      {
+            cc: "ZM",
+            name: "ザンビア",
+            en: "Zambia",
+            capital: "ルサカ",
+            lat: -15.42,
+            lon: 28.28,
+            region: "アフリカ"
+      },
+      {
+            cc: "ZW",
+            name: "ジンバブエ",
+            en: "Zimbabwe",
+            capital: "ハラレ",
+            lat: -17.83,
+            lon: 31.05,
+            region: "アフリカ"
+      },
+      {
+            cc: "MZ",
+            name: "モザンビーク",
+            en: "Mozambique",
+            capital: "マプト",
+            lat: -25.97,
+            lon: 32.58,
+            region: "アフリカ"
+      },
+      {
+            cc: "MW",
+            name: "マラウイ",
+            en: "Malawi",
+            capital: "リロングウェ",
+            lat: -13.96,
+            lon: 33.79,
+            region: "アフリカ"
+      },
+      {
+            cc: "NA",
+            name: "ナミビア",
+            en: "Namibia",
+            capital: "ウィントフック",
+            lat: -22.56,
+            lon: 17.08,
+            region: "アフリカ"
+      },
+      {
+            cc: "BW",
+            name: "ボツワナ",
+            en: "Botswana",
+            capital: "ハボローネ",
+            lat: -24.63,
+            lon: 25.92,
+            region: "アフリカ"
+      },
+      {
+            cc: "ZA",
+            name: "南アフリカ",
+            en: "South Africa",
+            capital: "プレトリア",
+            lat: -25.75,
+            lon: 28.19,
+            region: "アフリカ"
+      },
+      {
+            cc: "LS",
+            name: "レソト",
+            en: "Lesotho",
+            capital: "マセル",
+            lat: -29.31,
+            lon: 27.48,
+            region: "アフリカ"
+      },
+      {
+            cc: "SZ",
+            name: "エスワティニ",
+            en: "Eswatini",
+            capital: "ムババーネ",
+            lat: -26.31,
+            lon: 31.14,
+            region: "アフリカ"
+      },
+      {
+            cc: "MG",
+            name: "マダガスカル",
+            en: "Madagascar",
+            capital: "アンタナナリボ",
+            lat: -18.88,
+            lon: 47.51,
+            region: "アフリカ"
+      },
+      {
+            cc: "MU",
+            name: "モーリシャス",
+            en: "Mauritius",
+            capital: "ポートルイス",
+            lat: -20.16,
+            lon: 57.5,
+            region: "アフリカ"
+      },
+      {
+            cc: "SC",
+            name: "セーシェル",
+            en: "Seychelles",
+            capital: "ヴィクトリア",
+            lat: -4.62,
+            lon: 55.45,
+            region: "アフリカ"
+      },
+      {
+            cc: "KM",
+            name: "コモロ",
+            en: "Comoros",
+            capital: "モロニ",
+            lat: -11.7,
+            lon: 43.26,
+            region: "アフリカ"
+      },
+      {
+            cc: "US",
+            name: "アメリカ",
+            en: "United States",
+            capital: "ワシントンD.C.",
+            lat: 38.9,
+            lon: -77.04,
+            region: "北中米"
+      },
+      {
+            cc: "CA",
+            name: "カナダ",
+            en: "Canada",
+            capital: "オタワ",
+            lat: 45.42,
+            lon: -75.7,
+            region: "北中米"
+      },
+      {
+            cc: "MX",
+            name: "メキシコ",
+            en: "Mexico",
+            capital: "メキシコシティ",
+            lat: 19.43,
+            lon: -99.13,
+            region: "北中米"
+      },
+      {
+            cc: "GT",
+            name: "グアテマラ",
+            en: "Guatemala",
+            capital: "グアテマラシティ",
+            lat: 14.63,
+            lon: -90.51,
+            region: "北中米"
+      },
+      {
+            cc: "BZ",
+            name: "ベリーズ",
+            en: "Belize",
+            capital: "ベルモパン",
+            lat: 17.25,
+            lon: -88.77,
+            region: "北中米"
+      },
+      {
+            cc: "HN",
+            name: "ホンジュラス",
+            en: "Honduras",
+            capital: "テグシガルパ",
+            lat: 14.08,
+            lon: -87.21,
+            region: "北中米"
+      },
+      {
+            cc: "SV",
+            name: "エルサルバドル",
+            en: "El Salvador",
+            capital: "サンサルバドル",
+            lat: 13.69,
+            lon: -89.19,
+            region: "北中米"
+      },
+      {
+            cc: "NI",
+            name: "ニカラグア",
+            en: "Nicaragua",
+            capital: "マナグア",
+            lat: 12.11,
+            lon: -86.24,
+            region: "北中米"
+      },
+      {
+            cc: "CR",
+            name: "コスタリカ",
+            en: "Costa Rica",
+            capital: "サンホセ",
+            lat: 9.93,
+            lon: -84.08,
+            region: "北中米"
+      },
+      {
+            cc: "PA",
+            name: "パナマ",
+            en: "Panama",
+            capital: "パナマシティ",
+            lat: 8.98,
+            lon: -79.52,
+            region: "北中米"
+      },
+      {
+            cc: "CU",
+            name: "キューバ",
+            en: "Cuba",
+            capital: "ハバナ",
+            lat: 23.11,
+            lon: -82.37,
+            region: "北中米"
+      },
+      {
+            cc: "HT",
+            name: "ハイチ",
+            en: "Haiti",
+            capital: "ポルトープランス",
+            lat: 18.54,
+            lon: -72.34,
+            region: "北中米"
+      },
+      {
+            cc: "DO",
+            name: "ドミニカ共和国",
+            en: "Dominican Republic",
+            capital: "サントドミンゴ",
+            lat: 18.49,
+            lon: -69.93,
+            region: "北中米"
+      },
+      {
+            cc: "JM",
+            name: "ジャマイカ",
+            en: "Jamaica",
+            capital: "キングストン",
+            lat: 17.97,
+            lon: -76.79,
+            region: "北中米"
+      },
+      {
+            cc: "TT",
+            name: "トリニダード・トバゴ",
+            en: "Trinidad and Tobago",
+            capital: "ポートオブスペイン",
+            lat: 10.66,
+            lon: -61.52,
+            region: "北中米"
+      },
+      {
+            cc: "BB",
+            name: "バルバドス",
+            en: "Barbados",
+            capital: "ブリッジタウン",
+            lat: 13.1,
+            lon: -59.62,
+            region: "北中米"
+      },
+      {
+            cc: "BS",
+            name: "バハマ",
+            en: "Bahamas",
+            capital: "ナッソー",
+            lat: 25.04,
+            lon: -77.35,
+            region: "北中米"
+      },
+      {
+            cc: "AG",
+            name: "アンティグア・バーブーダ",
+            en: "Antigua and Barbuda",
+            capital: "セントジョンズ",
+            lat: 17.12,
+            lon: -61.85,
+            region: "北中米"
+      },
+      {
+            cc: "DM",
+            name: "ドミニカ国",
+            en: "Dominica",
+            capital: "ロゾー",
+            lat: 15.3,
+            lon: -61.39,
+            region: "北中米"
+      },
+      {
+            cc: "GD",
+            name: "グレナダ",
+            en: "Grenada",
+            capital: "セントジョージズ",
+            lat: 12.06,
+            lon: -61.75,
+            region: "北中米"
+      },
+      {
+            cc: "KN",
+            name: "セントクリストファー・ネービス",
+            en: "Saint Kitts and Nevis",
+            capital: "バセテール",
+            lat: 17.3,
+            lon: -62.72,
+            region: "北中米"
+      },
+      {
+            cc: "LC",
+            name: "セントルシア",
+            en: "Saint Lucia",
+            capital: "カストリーズ",
+            lat: 14.01,
+            lon: -60.99,
+            region: "北中米"
+      },
+      {
+            cc: "VC",
+            name: "セントビンセント・グレナディーン",
+            en: "Saint Vincent and the Grenadines",
+            capital: "キングスタウン",
+            lat: 13.16,
+            lon: -61.22,
+            region: "北中米"
+      },
+      {
+            cc: "CO",
+            name: "コロンビア",
+            en: "Colombia",
+            capital: "ボゴタ",
+            lat: 4.71,
+            lon: -74.07,
+            region: "南米"
+      },
+      {
+            cc: "VE",
+            name: "ベネズエラ",
+            en: "Venezuela",
+            capital: "カラカス",
+            lat: 10.48,
+            lon: -66.9,
+            region: "南米"
+      },
+      {
+            cc: "GY",
+            name: "ガイアナ",
+            en: "Guyana",
+            capital: "ジョージタウン",
+            lat: 6.8,
+            lon: -58.16,
+            region: "南米"
+      },
+      {
+            cc: "SR",
+            name: "スリナム",
+            en: "Suriname",
+            capital: "パラマリボ",
+            lat: 5.85,
+            lon: -55.2,
+            region: "南米"
+      },
+      {
+            cc: "EC",
+            name: "エクアドル",
+            en: "Ecuador",
+            capital: "キト",
+            lat: -0.18,
+            lon: -78.47,
+            region: "南米"
+      },
+      {
+            cc: "PE",
+            name: "ペルー",
+            en: "Peru",
+            capital: "リマ",
+            lat: -12.05,
+            lon: -77.04,
+            region: "南米"
+      },
+      {
+            cc: "BR",
+            name: "ブラジル",
+            en: "Brazil",
+            capital: "ブラジリア",
+            lat: -15.79,
+            lon: -47.88,
+            region: "南米"
+      },
+      {
+            cc: "BO",
+            name: "ボリビア",
+            en: "Bolivia",
+            capital: "スクレ",
+            lat: -19.02,
+            lon: -65.26,
+            region: "南米"
+      },
+      {
+            cc: "PY",
+            name: "パラグアイ",
+            en: "Paraguay",
+            capital: "アスンシオン",
+            lat: -25.26,
+            lon: -57.58,
+            region: "南米"
+      },
+      {
+            cc: "UY",
+            name: "ウルグアイ",
+            en: "Uruguay",
+            capital: "モンテビデオ",
+            lat: -34.9,
+            lon: -56.16,
+            region: "南米"
+      },
+      {
+            cc: "AR",
+            name: "アルゼンチン",
+            en: "Argentina",
+            capital: "ブエノスアイレス",
+            lat: -34.6,
+            lon: -58.38,
+            region: "南米"
+      },
+      {
+            cc: "CL",
+            name: "チリ",
+            en: "Chile",
+            capital: "サンティアゴ",
+            lat: -33.45,
+            lon: -70.66,
+            region: "南米"
+      },
+      {
+            cc: "AU",
+            name: "オーストラリア",
+            en: "Australia",
+            capital: "キャンベラ",
+            lat: -35.28,
+            lon: 149.13,
+            region: "オセアニア"
+      },
+      {
+            cc: "NZ",
+            name: "ニュージーランド",
+            en: "New Zealand",
+            capital: "ウェリントン",
+            lat: -41.29,
+            lon: 174.78,
+            region: "オセアニア"
+      },
+      {
+            cc: "PG",
+            name: "パプアニューギニア",
+            en: "Papua New Guinea",
+            capital: "ポートモレスビー",
+            lat: -9.44,
+            lon: 147.18,
+            region: "オセアニア"
+      },
+      {
+            cc: "FJ",
+            name: "フィジー",
+            en: "Fiji",
+            capital: "スバ",
+            lat: -18.14,
+            lon: 178.44,
+            region: "オセアニア"
+      },
+      {
+            cc: "SB",
+            name: "ソロモン諸島",
+            en: "Solomon Islands",
+            capital: "ホニアラ",
+            lat: -9.43,
+            lon: 159.95,
+            region: "オセアニア"
+      },
+      {
+            cc: "VU",
+            name: "バヌアツ",
+            en: "Vanuatu",
+            capital: "ポートビラ",
+            lat: -17.73,
+            lon: 168.32,
+            region: "オセアニア"
+      },
+      {
+            cc: "WS",
+            name: "サモア",
+            en: "Samoa",
+            capital: "アピア",
+            lat: -13.83,
+            lon: -171.77,
+            region: "オセアニア"
+      },
+      {
+            cc: "TO",
+            name: "トンガ",
+            en: "Tonga",
+            capital: "ヌクアロファ",
+            lat: -21.14,
+            lon: -175.2,
+            region: "オセアニア"
+      },
+      {
+            cc: "KI",
+            name: "キリバス",
+            en: "Kiribati",
+            capital: "タラワ",
+            lat: 1.33,
+            lon: 172.98,
+            region: "オセアニア"
+      },
+      {
+            cc: "TV",
+            name: "ツバル",
+            en: "Tuvalu",
+            capital: "フナフティ",
+            lat: -8.52,
+            lon: 179.19,
+            region: "オセアニア"
+      },
+      {
+            cc: "NR",
+            name: "ナウル",
+            en: "Nauru",
+            capital: "ヤレン",
+            lat: -0.55,
+            lon: 166.92,
+            region: "オセアニア"
+      },
+      {
+            cc: "MH",
+            name: "マーシャル諸島",
+            en: "Marshall Islands",
+            capital: "マジュロ",
+            lat: 7.12,
+            lon: 171.06,
+            region: "オセアニア"
+      },
+      {
+            cc: "FM",
+            name: "ミクロネシア連邦",
+            en: "Micronesia",
+            capital: "パリキール",
+            lat: 6.92,
+            lon: 158.16,
+            region: "オセアニア"
+      },
+      {
+            cc: "PW",
+            name: "パラオ",
+            en: "Palau",
+            capital: "ンゲルルムッド",
+            lat: 7.5,
+            lon: 134.62,
+            region: "オセアニア"
+      }
+];
 
-      { cc: "GB", name: "イギリス", en: "United Kingdom", capital: "ロンドン", lat: 51.51, lon: -0.13, region: "ヨーロッパ" },
-      { cc: "IE", name: "アイルランド", en: "Ireland", capital: "ダブリン", lat: 53.35, lon: -6.26, region: "ヨーロッパ" },
-      { cc: "FR", name: "フランス", en: "France", capital: "パリ", lat: 48.86, lon: 2.35, region: "ヨーロッパ" },
-      { cc: "ES", name: "スペイン", en: "Spain", capital: "マドリード", lat: 40.42, lon: -3.70, region: "ヨーロッパ" },
-      { cc: "PT", name: "ポルトガル", en: "Portugal", capital: "リスボン", lat: 38.72, lon: -9.14, region: "ヨーロッパ" },
-      { cc: "AD", name: "アンドラ", en: "Andorra", capital: "アンドラ・ラ・ベリャ", lat: 42.51, lon: 1.52, region: "ヨーロッパ" },
-      { cc: "MC", name: "モナコ", en: "Monaco", capital: "モナコ", lat: 43.73, lon: 7.42, region: "ヨーロッパ" },
-      { cc: "BE", name: "ベルギー", en: "Belgium", capital: "ブリュッセル", lat: 50.85, lon: 4.35, region: "ヨーロッパ" },
-      { cc: "NL", name: "オランダ", en: "Netherlands", capital: "アムステルダム", lat: 52.37, lon: 4.90, region: "ヨーロッパ" },
-      { cc: "LU", name: "ルクセンブルク", en: "Luxembourg", capital: "ルクセンブルク", lat: 49.61, lon: 6.13, region: "ヨーロッパ" },
-      { cc: "DE", name: "ドイツ", en: "Germany", capital: "ベルリン", lat: 52.52, lon: 13.40, region: "ヨーロッパ" },
-      { cc: "CH", name: "スイス", en: "Switzerland", capital: "ベルン", lat: 46.95, lon: 7.45, region: "ヨーロッパ" },
-      { cc: "AT", name: "オーストリア", en: "Austria", capital: "ウィーン", lat: 48.21, lon: 16.37, region: "ヨーロッパ" },
-      { cc: "IT", name: "イタリア", en: "Italy", capital: "ローマ", lat: 41.90, lon: 12.50, region: "ヨーロッパ" },
-      { cc: "VA", name: "バチカン", en: "Vatican City", capital: "バチカン市国", lat: 41.90, lon: 12.45, region: "ヨーロッパ" },
-      { cc: "SM", name: "サンマリノ", en: "San Marino", capital: "サンマリノ", lat: 43.94, lon: 12.45, region: "ヨーロッパ" },
-      { cc: "MT", name: "マルタ", en: "Malta", capital: "バレッタ", lat: 35.90, lon: 14.51, region: "ヨーロッパ" },
-      { cc: "CY", name: "キプロス", en: "Cyprus", capital: "ニコシア", lat: 35.19, lon: 33.38, region: "ヨーロッパ" },
-      { cc: "LI", name: "リヒテンシュタイン", en: "Liechtenstein", capital: "ファドゥーツ", lat: 47.14, lon: 9.52, region: "ヨーロッパ" },
-      { cc: "PL", name: "ポーランド", en: "Poland", capital: "ワルシャワ", lat: 52.23, lon: 21.01, region: "ヨーロッパ" },
-      { cc: "CZ", name: "チェコ", en: "Czechia", capital: "プラハ", lat: 50.08, lon: 14.44, region: "ヨーロッパ" },
-      { cc: "SK", name: "スロバキア", en: "Slovakia", capital: "ブラチスラバ", lat: 48.15, lon: 17.11, region: "ヨーロッパ" },
-      { cc: "HU", name: "ハンガリー", en: "Hungary", capital: "ブダペスト", lat: 47.50, lon: 19.04, region: "ヨーロッパ" },
-      { cc: "SI", name: "スロベニア", en: "Slovenia", capital: "リュブリャナ", lat: 46.06, lon: 14.51, region: "ヨーロッパ" },
-      { cc: "HR", name: "クロアチア", en: "Croatia", capital: "ザグレブ", lat: 45.81, lon: 15.98, region: "ヨーロッパ" },
-      { cc: "BA", name: "ボスニア・ヘルツェゴビナ", en: "Bosnia and Herzegovina", capital: "サラエボ", lat: 43.86, lon: 18.41, region: "ヨーロッパ" },
-      { cc: "RS", name: "セルビア", en: "Serbia", capital: "ベオグラード", lat: 44.81, lon: 20.46, region: "ヨーロッパ" },
-      { cc: "ME", name: "モンテネグロ", en: "Montenegro", capital: "ポドゴリツァ", lat: 42.43, lon: 19.26, region: "ヨーロッパ" },
-      { cc: "AL", name: "アルバニア", en: "Albania", capital: "ティラナ", lat: 41.33, lon: 19.82, region: "ヨーロッパ" },
-      { cc: "MK", name: "北マケドニア", en: "North Macedonia", capital: "スコピエ", lat: 41.99, lon: 21.43, region: "ヨーロッパ" },
-      { cc: "GR", name: "ギリシャ", en: "Greece", capital: "アテネ", lat: 37.98, lon: 23.73, region: "ヨーロッパ" },
-      { cc: "BG", name: "ブルガリア", en: "Bulgaria", capital: "ソフィア", lat: 42.70, lon: 23.32, region: "ヨーロッパ" },
-      { cc: "RO", name: "ルーマニア", en: "Romania", capital: "ブカレスト", lat: 44.43, lon: 26.10, region: "ヨーロッパ" },
-      { cc: "MD", name: "モルドバ", en: "Moldova", capital: "キシナウ", lat: 47.01, lon: 28.86, region: "ヨーロッパ" },
-      { cc: "UA", name: "ウクライナ", en: "Ukraine", capital: "キーウ", lat: 50.45, lon: 30.52, region: "ヨーロッパ" },
-      { cc: "BY", name: "ベラルーシ", en: "Belarus", capital: "ミンスク", lat: 53.90, lon: 27.56, region: "ヨーロッパ" },
-      { cc: "LT", name: "リトアニア", en: "Lithuania", capital: "ビリニュス", lat: 54.69, lon: 25.28, region: "ヨーロッパ" },
-      { cc: "LV", name: "ラトビア", en: "Latvia", capital: "リガ", lat: 56.95, lon: 24.11, region: "ヨーロッパ" },
-      { cc: "EE", name: "エストニア", en: "Estonia", capital: "タリン", lat: 59.44, lon: 24.75, region: "ヨーロッパ" },
-      { cc: "FI", name: "フィンランド", en: "Finland", capital: "ヘルシンキ", lat: 60.17, lon: 24.94, region: "ヨーロッパ" },
-      { cc: "SE", name: "スウェーデン", en: "Sweden", capital: "ストックホルム", lat: 59.33, lon: 18.07, region: "ヨーロッパ" },
-      { cc: "NO", name: "ノルウェー", en: "Norway", capital: "オスロ", lat: 59.91, lon: 10.75, region: "ヨーロッパ" },
-      { cc: "DK", name: "デンマーク", en: "Denmark", capital: "コペンハーゲン", lat: 55.68, lon: 12.57, region: "ヨーロッパ" },
-      { cc: "IS", name: "アイスランド", en: "Iceland", capital: "レイキャビク", lat: 64.15, lon: -21.94, region: "ヨーロッパ" },
-      { cc: "RU", name: "ロシア", en: "Russia", capital: "モスクワ", lat: 55.76, lon: 37.62, region: "ヨーロッパ" },
-
-      { cc: "EG", name: "エジプト", en: "Egypt", capital: "カイロ", lat: 30.04, lon: 31.24, region: "アフリカ" },
-      { cc: "LY", name: "リビア", en: "Libya", capital: "トリポリ", lat: 32.89, lon: 13.19, region: "アフリカ" },
-      { cc: "TN", name: "チュニジア", en: "Tunisia", capital: "チュニス", lat: 36.81, lon: 10.18, region: "アフリカ" },
-      { cc: "DZ", name: "アルジェリア", en: "Algeria", capital: "アルジェ", lat: 36.75, lon: 3.06, region: "アフリカ" },
-      { cc: "MA", name: "モロッコ", en: "Morocco", capital: "ラバト", lat: 34.02, lon: -6.84, region: "アフリカ" },
-      { cc: "SD", name: "スーダン", en: "Sudan", capital: "ハルツーム", lat: 15.50, lon: 32.56, region: "アフリカ" },
-      { cc: "SS", name: "南スーダン", en: "South Sudan", capital: "ジュバ", lat: 4.86, lon: 31.57, region: "アフリカ" },
-      { cc: "ET", name: "エチオピア", en: "Ethiopia", capital: "アディスアベバ", lat: 9.03, lon: 38.75, region: "アフリカ" },
-      { cc: "ER", name: "エリトリア", en: "Eritrea", capital: "アスマラ", lat: 15.32, lon: 38.93, region: "アフリカ" },
-      { cc: "DJ", name: "ジブチ", en: "Djibouti", capital: "ジブチ", lat: 11.59, lon: 43.15, region: "アフリカ" },
-      { cc: "SO", name: "ソマリア", en: "Somalia", capital: "モガディシュ", lat: 2.05, lon: 45.32, region: "アフリカ" },
-      { cc: "KE", name: "ケニア", en: "Kenya", capital: "ナイロビ", lat: -1.29, lon: 36.82, region: "アフリカ" },
-      { cc: "UG", name: "ウガンダ", en: "Uganda", capital: "カンパラ", lat: 0.35, lon: 32.58, region: "アフリカ" },
-      { cc: "RW", name: "ルワンダ", en: "Rwanda", capital: "キガリ", lat: -1.95, lon: 30.06, region: "アフリカ" },
-      { cc: "BI", name: "ブルンジ", en: "Burundi", capital: "ギテガ", lat: -3.43, lon: 29.92, region: "アフリカ" },
-      { cc: "TZ", name: "タンザニア", en: "Tanzania", capital: "ドドマ", lat: -6.16, lon: 35.75, region: "アフリカ" },
-      { cc: "CD", name: "コンゴ民主共和国", en: "DR Congo", capital: "キンシャサ", lat: -4.33, lon: 15.31, region: "アフリカ" },
-      { cc: "CG", name: "コンゴ共和国", en: "Republic of the Congo", capital: "ブラザビル", lat: -4.27, lon: 15.28, region: "アフリカ" },
-      { cc: "GA", name: "ガボン", en: "Gabon", capital: "リーブルビル", lat: 0.42, lon: 9.45, region: "アフリカ" },
-      { cc: "GQ", name: "赤道ギニア", en: "Equatorial Guinea", capital: "マラボ", lat: 3.75, lon: 8.78, region: "アフリカ" },
-      { cc: "CM", name: "カメルーン", en: "Cameroon", capital: "ヤウンデ", lat: 3.87, lon: 11.52, region: "アフリカ" },
-      { cc: "NG", name: "ナイジェリア", en: "Nigeria", capital: "アブジャ", lat: 9.08, lon: 7.40, region: "アフリカ" },
-      { cc: "NE", name: "ニジェール", en: "Niger", capital: "ニアメ", lat: 13.51, lon: 2.11, region: "アフリカ" },
-      { cc: "TD", name: "チャド", en: "Chad", capital: "ンジャメナ", lat: 12.13, lon: 15.05, region: "アフリカ" },
-      { cc: "CF", name: "中央アフリカ", en: "Central African Republic", capital: "バンギ", lat: 4.39, lon: 18.56, region: "アフリカ" },
-      { cc: "GH", name: "ガーナ", en: "Ghana", capital: "アクラ", lat: 5.56, lon: -0.20, region: "アフリカ" },
-      { cc: "CI", name: "コートジボワール", en: "Cote d'Ivoire", capital: "ヤムスクロ", lat: 6.82, lon: -5.28, region: "アフリカ" },
-      { cc: "LR", name: "リベリア", en: "Liberia", capital: "モンロビア", lat: 6.30, lon: -10.80, region: "アフリカ" },
-      { cc: "SL", name: "シエラレオネ", en: "Sierra Leone", capital: "フリータウン", lat: 8.48, lon: -13.23, region: "アフリカ" },
-      { cc: "GN", name: "ギニア", en: "Guinea", capital: "コナクリ", lat: 9.64, lon: -13.58, region: "アフリカ" },
-      { cc: "GW", name: "ギニアビサウ", en: "Guinea-Bissau", capital: "ビサウ", lat: 11.86, lon: -15.58, region: "アフリカ" },
-      { cc: "SN", name: "セネガル", en: "Senegal", capital: "ダカール", lat: 14.69, lon: -17.45, region: "アフリカ" },
-      { cc: "GM", name: "ガンビア", en: "Gambia", capital: "バンジュール", lat: 13.45, lon: -16.58, region: "アフリカ" },
-      { cc: "MR", name: "モーリタニア", en: "Mauritania", capital: "ヌアクショット", lat: 18.08, lon: -15.98, region: "アフリカ" },
-      { cc: "ML", name: "マリ", en: "Mali", capital: "バマコ", lat: 12.64, lon: -8.00, region: "アフリカ" },
-      { cc: "BF", name: "ブルキナファソ", en: "Burkina Faso", capital: "ワガドゥグー", lat: 12.37, lon: -1.53, region: "アフリカ" },
-      { cc: "BJ", name: "ベナン", en: "Benin", capital: "ポルトノボ", lat: 6.50, lon: 2.60, region: "アフリカ" },
-      { cc: "TG", name: "トーゴ", en: "Togo", capital: "ロメ", lat: 6.13, lon: 1.22, region: "アフリカ" },
-      { cc: "CV", name: "カーボベルデ", en: "Cabo Verde", capital: "プライア", lat: 14.93, lon: -23.51, region: "アフリカ" },
-      { cc: "ST", name: "サントメ・プリンシペ", en: "Sao Tome and Principe", capital: "サントメ", lat: 0.34, lon: 6.73, region: "アフリカ" },
-      { cc: "AO", name: "アンゴラ", en: "Angola", capital: "ルアンダ", lat: -8.84, lon: 13.23, region: "アフリカ" },
-      { cc: "ZM", name: "ザンビア", en: "Zambia", capital: "ルサカ", lat: -15.42, lon: 28.28, region: "アフリカ" },
-      { cc: "ZW", name: "ジンバブエ", en: "Zimbabwe", capital: "ハラレ", lat: -17.83, lon: 31.05, region: "アフリカ" },
-      { cc: "MZ", name: "モザンビーク", en: "Mozambique", capital: "マプト", lat: -25.97, lon: 32.58, region: "アフリカ" },
-      { cc: "MW", name: "マラウイ", en: "Malawi", capital: "リロングウェ", lat: -13.96, lon: 33.79, region: "アフリカ" },
-      { cc: "NA", name: "ナミビア", en: "Namibia", capital: "ウィントフック", lat: -22.56, lon: 17.08, region: "アフリカ" },
-      { cc: "BW", name: "ボツワナ", en: "Botswana", capital: "ハボローネ", lat: -24.63, lon: 25.92, region: "アフリカ" },
-      { cc: "ZA", name: "南アフリカ", en: "South Africa", capital: "プレトリア", lat: -25.75, lon: 28.19, region: "アフリカ" },
-      { cc: "LS", name: "レソト", en: "Lesotho", capital: "マセル", lat: -29.31, lon: 27.48, region: "アフリカ" },
-      { cc: "SZ", name: "エスワティニ", en: "Eswatini", capital: "ムババーネ", lat: -26.31, lon: 31.14, region: "アフリカ" },
-      { cc: "MG", name: "マダガスカル", en: "Madagascar", capital: "アンタナナリボ", lat: -18.88, lon: 47.51, region: "アフリカ" },
-      { cc: "MU", name: "モーリシャス", en: "Mauritius", capital: "ポートルイス", lat: -20.16, lon: 57.50, region: "アフリカ" },
-      { cc: "SC", name: "セーシェル", en: "Seychelles", capital: "ヴィクトリア", lat: -4.62, lon: 55.45, region: "アフリカ" },
-      { cc: "KM", name: "コモロ", en: "Comoros", capital: "モロニ", lat: -11.70, lon: 43.26, region: "アフリカ" },
-
-      { cc: "US", name: "アメリカ", en: "United States", capital: "ワシントンD.C.", lat: 38.90, lon: -77.04, region: "北中米" },
-      { cc: "CA", name: "カナダ", en: "Canada", capital: "オタワ", lat: 45.42, lon: -75.70, region: "北中米" },
-      { cc: "MX", name: "メキシコ", en: "Mexico", capital: "メキシコシティ", lat: 19.43, lon: -99.13, region: "北中米" },
-      { cc: "GT", name: "グアテマラ", en: "Guatemala", capital: "グアテマラシティ", lat: 14.63, lon: -90.51, region: "北中米" },
-      { cc: "BZ", name: "ベリーズ", en: "Belize", capital: "ベルモパン", lat: 17.25, lon: -88.77, region: "北中米" },
-      { cc: "HN", name: "ホンジュラス", en: "Honduras", capital: "テグシガルパ", lat: 14.08, lon: -87.21, region: "北中米" },
-      { cc: "SV", name: "エルサルバドル", en: "El Salvador", capital: "サンサルバドル", lat: 13.69, lon: -89.19, region: "北中米" },
-      { cc: "NI", name: "ニカラグア", en: "Nicaragua", capital: "マナグア", lat: 12.11, lon: -86.24, region: "北中米" },
-      { cc: "CR", name: "コスタリカ", en: "Costa Rica", capital: "サンホセ", lat: 9.93, lon: -84.08, region: "北中米" },
-      { cc: "PA", name: "パナマ", en: "Panama", capital: "パナマシティ", lat: 8.98, lon: -79.52, region: "北中米" },
-      { cc: "CU", name: "キューバ", en: "Cuba", capital: "ハバナ", lat: 23.11, lon: -82.37, region: "北中米" },
-      { cc: "HT", name: "ハイチ", en: "Haiti", capital: "ポルトープランス", lat: 18.54, lon: -72.34, region: "北中米" },
-      { cc: "DO", name: "ドミニカ共和国", en: "Dominican Republic", capital: "サントドミンゴ", lat: 18.49, lon: -69.93, region: "北中米" },
-      { cc: "JM", name: "ジャマイカ", en: "Jamaica", capital: "キングストン", lat: 17.97, lon: -76.79, region: "北中米" },
-      { cc: "TT", name: "トリニダード・トバゴ", en: "Trinidad and Tobago", capital: "ポートオブスペイン", lat: 10.66, lon: -61.52, region: "北中米" },
-      { cc: "BB", name: "バルバドス", en: "Barbados", capital: "ブリッジタウン", lat: 13.10, lon: -59.62, region: "北中米" },
-      { cc: "BS", name: "バハマ", en: "Bahamas", capital: "ナッソー", lat: 25.04, lon: -77.35, region: "北中米" },
-      { cc: "AG", name: "アンティグア・バーブーダ", en: "Antigua and Barbuda", capital: "セントジョンズ", lat: 17.12, lon: -61.85, region: "北中米" },
-      { cc: "DM", name: "ドミニカ国", en: "Dominica", capital: "ロゾー", lat: 15.30, lon: -61.39, region: "北中米" },
-      { cc: "GD", name: "グレナダ", en: "Grenada", capital: "セントジョージズ", lat: 12.06, lon: -61.75, region: "北中米" },
-      { cc: "KN", name: "セントクリストファー・ネービス", en: "Saint Kitts and Nevis", capital: "バセテール", lat: 17.30, lon: -62.72, region: "北中米" },
-      { cc: "LC", name: "セントルシア", en: "Saint Lucia", capital: "カストリーズ", lat: 14.01, lon: -60.99, region: "北中米" },
-      { cc: "VC", name: "セントビンセント・グレナディーン", en: "Saint Vincent and the Grenadines", capital: "キングスタウン", lat: 13.16, lon: -61.22, region: "北中米" },
-      { cc: "CO", name: "コロンビア", en: "Colombia", capital: "ボゴタ", lat: 4.71, lon: -74.07, region: "南米" },
-      { cc: "VE", name: "ベネズエラ", en: "Venezuela", capital: "カラカス", lat: 10.48, lon: -66.90, region: "南米" },
-      { cc: "GY", name: "ガイアナ", en: "Guyana", capital: "ジョージタウン", lat: 6.80, lon: -58.16, region: "南米" },
-      { cc: "SR", name: "スリナム", en: "Suriname", capital: "パラマリボ", lat: 5.85, lon: -55.20, region: "南米" },
-      { cc: "EC", name: "エクアドル", en: "Ecuador", capital: "キト", lat: -0.18, lon: -78.47, region: "南米" },
-      { cc: "PE", name: "ペルー", en: "Peru", capital: "リマ", lat: -12.05, lon: -77.04, region: "南米" },
-      { cc: "BR", name: "ブラジル", en: "Brazil", capital: "ブラジリア", lat: -15.79, lon: -47.88, region: "南米" },
-      { cc: "BO", name: "ボリビア", en: "Bolivia", capital: "スクレ", lat: -19.02, lon: -65.26, region: "南米" },
-      { cc: "PY", name: "パラグアイ", en: "Paraguay", capital: "アスンシオン", lat: -25.26, lon: -57.58, region: "南米" },
-      { cc: "UY", name: "ウルグアイ", en: "Uruguay", capital: "モンテビデオ", lat: -34.90, lon: -56.16, region: "南米" },
-      { cc: "AR", name: "アルゼンチン", en: "Argentina", capital: "ブエノスアイレス", lat: -34.60, lon: -58.38, region: "南米" },
-      { cc: "CL", name: "チリ", en: "Chile", capital: "サンティアゴ", lat: -33.45, lon: -70.66, region: "南米" },
-
-      { cc: "AU", name: "オーストラリア", en: "Australia", capital: "キャンベラ", lat: -35.28, lon: 149.13, region: "オセアニア" },
-      { cc: "NZ", name: "ニュージーランド", en: "New Zealand", capital: "ウェリントン", lat: -41.29, lon: 174.78, region: "オセアニア" },
-      { cc: "PG", name: "パプアニューギニア", en: "Papua New Guinea", capital: "ポートモレスビー", lat: -9.44, lon: 147.18, region: "オセアニア" },
-      { cc: "FJ", name: "フィジー", en: "Fiji", capital: "スバ", lat: -18.14, lon: 178.44, region: "オセアニア" },
-      { cc: "SB", name: "ソロモン諸島", en: "Solomon Islands", capital: "ホニアラ", lat: -9.43, lon: 159.95, region: "オセアニア" },
-      { cc: "VU", name: "バヌアツ", en: "Vanuatu", capital: "ポートビラ", lat: -17.73, lon: 168.32, region: "オセアニア" },
-      { cc: "WS", name: "サモア", en: "Samoa", capital: "アピア", lat: -13.83, lon: -171.77, region: "オセアニア" },
-      { cc: "TO", name: "トンガ", en: "Tonga", capital: "ヌクアロファ", lat: -21.14, lon: -175.20, region: "オセアニア" },
-      { cc: "KI", name: "キリバス", en: "Kiribati", capital: "タラワ", lat: 1.33, lon: 172.98, region: "オセアニア" },
-      { cc: "TV", name: "ツバル", en: "Tuvalu", capital: "フナフティ", lat: -8.52, lon: 179.19, region: "オセアニア" },
-      { cc: "NR", name: "ナウル", en: "Nauru", capital: "ヤレン", lat: -0.55, lon: 166.92, region: "オセアニア" },
-      { cc: "MH", name: "マーシャル諸島", en: "Marshall Islands", capital: "マジュロ", lat: 7.12, lon: 171.06, region: "オセアニア" },
-      { cc: "FM", name: "ミクロネシア連邦", en: "Micronesia", capital: "パリキール", lat: 6.92, lon: 158.16, region: "オセアニア" },
-      { cc: "PW", name: "パラオ", en: "Palau", capital: "ンゲルルムッド", lat: 7.50, lon: 134.62, region: "オセアニア" }
-    ];
+    /*
+      REST Countries の公開データをもとにした追加情報です。
+      人口・面積は更新される可能性があるので、学習用の目安として表示します。
+    */
+    const COUNTRY_DETAILS = {
+      "JP": {
+            "official": "Japan",
+            "subregion": "Eastern Asia",
+            "population": 123210000,
+            "area": 377930,
+            "languages": [
+                  "Japanese"
+            ],
+            "currencies": [
+                  "Japanese yen (¥)"
+            ]
+      },
+      "KR": {
+            "official": "Republic of Korea",
+            "subregion": "Eastern Asia",
+            "population": 51159889,
+            "area": 100210,
+            "languages": [
+                  "Korean"
+            ],
+            "currencies": [
+                  "South Korean won (₩)"
+            ]
+      },
+      "KP": {
+            "official": "Democratic People's Republic of Korea",
+            "subregion": "Eastern Asia",
+            "population": 25950000,
+            "area": 120538,
+            "languages": [
+                  "Korean"
+            ],
+            "currencies": [
+                  "North Korean won (₩)"
+            ]
+      },
+      "CN": {
+            "official": "People's Republic of China",
+            "subregion": "Eastern Asia",
+            "population": 1408280000,
+            "area": 9706961,
+            "languages": [
+                  "Chinese"
+            ],
+            "currencies": [
+                  "Chinese yuan (¥)"
+            ]
+      },
+      "MN": {
+            "official": "Mongolia",
+            "subregion": "Eastern Asia",
+            "population": 3544835,
+            "area": 1564110,
+            "languages": [
+                  "Mongolian"
+            ],
+            "currencies": [
+                  "Mongolian tögrög (₮)"
+            ]
+      },
+      "TW": {
+            "official": "Republic of China (Taiwan)",
+            "subregion": "Eastern Asia",
+            "population": 23317031,
+            "area": 36197,
+            "languages": [
+                  "Chinese"
+            ],
+            "currencies": [
+                  "New Taiwan dollar ($)"
+            ]
+      },
+      "IN": {
+            "official": "Republic of India",
+            "subregion": "Southern Asia",
+            "population": 1417492000,
+            "area": 3287263,
+            "languages": [
+                  "English",
+                  "Hindi",
+                  "Tamil"
+            ],
+            "currencies": [
+                  "Indian rupee (₹)"
+            ]
+      },
+      "PK": {
+            "official": "Islamic Republic of Pakistan",
+            "subregion": "Southern Asia",
+            "population": 241499431,
+            "area": 796095,
+            "languages": [
+                  "English",
+                  "Urdu"
+            ],
+            "currencies": [
+                  "Pakistani rupee (₨)"
+            ]
+      },
+      "BD": {
+            "official": "People's Republic of Bangladesh",
+            "subregion": "Southern Asia",
+            "population": 169828911,
+            "area": 147570,
+            "languages": [
+                  "Bengali"
+            ],
+            "currencies": [
+                  "Bangladeshi taka (৳)"
+            ]
+      },
+      "LK": {
+            "official": "Democratic Socialist Republic of Sri Lanka",
+            "subregion": "Southern Asia",
+            "population": 21763170,
+            "area": 65610,
+            "languages": [
+                  "Sinhala",
+                  "Tamil"
+            ],
+            "currencies": [
+                  "Sri Lankan rupee (Rs  රු)"
+            ]
+      },
+      "NP": {
+            "official": "Federal Democratic Republic of Nepal",
+            "subregion": "Southern Asia",
+            "population": 29911840,
+            "area": 147181,
+            "languages": [
+                  "Nepali"
+            ],
+            "currencies": [
+                  "Nepalese rupee (₨)"
+            ]
+      },
+      "BT": {
+            "official": "Kingdom of Bhutan",
+            "subregion": "Southern Asia",
+            "population": 784043,
+            "area": 38394,
+            "languages": [
+                  "Dzongkha"
+            ],
+            "currencies": [
+                  "Bhutanese ngultrum (Nu.)",
+                  "Indian rupee (₹)"
+            ]
+      },
+      "MV": {
+            "official": "Republic of the Maldives",
+            "subregion": "Southern Asia",
+            "population": 515132,
+            "area": 300,
+            "languages": [
+                  "Maldivian"
+            ],
+            "currencies": [
+                  "Maldivian rufiyaa (.ރ)"
+            ]
+      },
+      "MM": {
+            "official": "Republic of the Union of Myanmar",
+            "subregion": "South-Eastern Asia",
+            "population": 51316756,
+            "area": 676578,
+            "languages": [
+                  "Burmese"
+            ],
+            "currencies": [
+                  "Burmese kyat (Ks)"
+            ]
+      },
+      "TH": {
+            "official": "Kingdom of Thailand",
+            "subregion": "South-Eastern Asia",
+            "population": 65859640,
+            "area": 513120,
+            "languages": [
+                  "Thai"
+            ],
+            "currencies": [
+                  "Thai baht (฿)"
+            ]
+      },
+      "LA": {
+            "official": "Lao People's Democratic Republic",
+            "subregion": "South-Eastern Asia",
+            "population": 7647000,
+            "area": 236800,
+            "languages": [
+                  "Lao"
+            ],
+            "currencies": [
+                  "Lao kip (₭)"
+            ]
+      },
+      "KH": {
+            "official": "Kingdom of Cambodia",
+            "subregion": "South-Eastern Asia",
+            "population": 17577760,
+            "area": 181035,
+            "languages": [
+                  "Khmer"
+            ],
+            "currencies": [
+                  "Cambodian riel (៛)",
+                  "United States dollar ($)"
+            ]
+      },
+      "VN": {
+            "official": "Socialist Republic of Vietnam",
+            "subregion": "South-Eastern Asia",
+            "population": 101343800,
+            "area": 331212,
+            "languages": [
+                  "Vietnamese"
+            ],
+            "currencies": [
+                  "Vietnamese đồng (₫)"
+            ]
+      },
+      "MY": {
+            "official": "Malaysia",
+            "subregion": "South-Eastern Asia",
+            "population": 34231700,
+            "area": 330803,
+            "languages": [
+                  "English",
+                  "Malay"
+            ],
+            "currencies": [
+                  "Malaysian ringgit (RM)"
+            ]
+      },
+      "SG": {
+            "official": "Republic of Singapore",
+            "subregion": "South-Eastern Asia",
+            "population": 6110200,
+            "area": 710,
+            "languages": [
+                  "English",
+                  "Chinese",
+                  "Malay",
+                  "Tamil"
+            ],
+            "currencies": [
+                  "Singapore dollar ($)"
+            ]
+      },
+      "ID": {
+            "official": "Republic of Indonesia",
+            "subregion": "South-Eastern Asia",
+            "population": 284438782,
+            "area": 1904569,
+            "languages": [
+                  "Indonesian"
+            ],
+            "currencies": [
+                  "Indonesian rupiah (Rp)"
+            ]
+      },
+      "PH": {
+            "official": "Republic of the Philippines",
+            "subregion": "South-Eastern Asia",
+            "population": 114123600,
+            "area": 342353,
+            "languages": [
+                  "English",
+                  "Filipino"
+            ],
+            "currencies": [
+                  "Philippine peso (₱)"
+            ]
+      },
+      "BN": {
+            "official": "Nation of Brunei, Abode of Peace",
+            "subregion": "South-Eastern Asia",
+            "population": 455500,
+            "area": 5765,
+            "languages": [
+                  "Malay"
+            ],
+            "currencies": [
+                  "Brunei dollar ($)",
+                  "Singapore dollar ($)"
+            ]
+      },
+      "TL": {
+            "official": "Democratic Republic of Timor-Leste",
+            "subregion": "South-Eastern Asia",
+            "population": 1391221,
+            "area": 14874,
+            "languages": [
+                  "Portuguese",
+                  "Tetum"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      },
+      "KZ": {
+            "official": "Republic of Kazakhstan",
+            "subregion": "Central Asia",
+            "population": 20426568,
+            "area": 2724900,
+            "languages": [
+                  "Kazakh",
+                  "Russian"
+            ],
+            "currencies": [
+                  "Kazakhstani tenge (₸)"
+            ]
+      },
+      "UZ": {
+            "official": "Republic of Uzbekistan",
+            "subregion": "Central Asia",
+            "population": 37859698,
+            "area": 447400,
+            "languages": [
+                  "Russian",
+                  "Uzbek"
+            ],
+            "currencies": [
+                  "Uzbekistani soʻm (so'm)"
+            ]
+      },
+      "TM": {
+            "official": "Turkmenistan",
+            "subregion": "Central Asia",
+            "population": 7057841,
+            "area": 488100,
+            "languages": [
+                  "Russian",
+                  "Turkmen"
+            ],
+            "currencies": [
+                  "Turkmenistan manat (m)"
+            ]
+      },
+      "KG": {
+            "official": "Kyrgyz Republic",
+            "subregion": "Central Asia",
+            "population": 7281800,
+            "area": 199951,
+            "languages": [
+                  "Kyrgyz",
+                  "Russian"
+            ],
+            "currencies": [
+                  "Kyrgyzstani som (с)"
+            ]
+      },
+      "TJ": {
+            "official": "Republic of Tajikistan",
+            "subregion": "Central Asia",
+            "population": 10499000,
+            "area": 143100,
+            "languages": [
+                  "Russian",
+                  "Tajik"
+            ],
+            "currencies": [
+                  "Tajikistani somoni (ЅМ)"
+            ]
+      },
+      "AF": {
+            "official": "Islamic Republic of Afghanistan",
+            "subregion": "Southern Asia",
+            "population": 43844000,
+            "area": 652230,
+            "languages": [
+                  "Dari",
+                  "Pashto",
+                  "Turkmen"
+            ],
+            "currencies": [
+                  "Afghan afghani (؋)"
+            ]
+      },
+      "IR": {
+            "official": "Islamic Republic of Iran",
+            "subregion": "Southern Asia",
+            "population": 85961000,
+            "area": 1648195,
+            "languages": [
+                  "Persian (Farsi)"
+            ],
+            "currencies": [
+                  "Iranian rial (﷼)"
+            ]
+      },
+      "IQ": {
+            "official": "Republic of Iraq",
+            "subregion": "Western Asia",
+            "population": 46118793,
+            "area": 438317,
+            "languages": [
+                  "Arabic",
+                  "Aramaic",
+                  "Sorani"
+            ],
+            "currencies": [
+                  "Iraqi dinar (ع.د)"
+            ]
+      },
+      "SA": {
+            "official": "Kingdom of Saudi Arabia",
+            "subregion": "Western Asia",
+            "population": 35300280,
+            "area": 2149690,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Saudi riyal (ر.س)"
+            ]
+      },
+      "AE": {
+            "official": "United Arab Emirates",
+            "subregion": "Western Asia",
+            "population": 11294243,
+            "area": 83600,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "United Arab Emirates dirham (د.إ)"
+            ]
+      },
+      "QA": {
+            "official": "State of Qatar",
+            "subregion": "Western Asia",
+            "population": 3173024,
+            "area": 11586,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Qatari riyal (ر.ق)"
+            ]
+      },
+      "KW": {
+            "official": "State of Kuwait",
+            "subregion": "Western Asia",
+            "population": 4881254,
+            "area": 17818,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Kuwaiti dinar (د.ك)"
+            ]
+      },
+      "BH": {
+            "official": "Kingdom of Bahrain",
+            "subregion": "Western Asia",
+            "population": 1594654,
+            "area": 765,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Bahraini dinar (.د.ب)"
+            ]
+      },
+      "OM": {
+            "official": "Sultanate of Oman",
+            "subregion": "Western Asia",
+            "population": 5343630,
+            "area": 309500,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Omani rial (ر.ع.)"
+            ]
+      },
+      "YE": {
+            "official": "Republic of Yemen",
+            "subregion": "Western Asia",
+            "population": 32684503,
+            "area": 527968,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Yemeni rial (﷼)"
+            ]
+      },
+      "TR": {
+            "official": "Republic of Turkey",
+            "subregion": "Western Asia",
+            "population": 85664944,
+            "area": 783562,
+            "languages": [
+                  "Turkish"
+            ],
+            "currencies": [
+                  "Turkish lira (₺)"
+            ]
+      },
+      "IL": {
+            "official": "State of Israel",
+            "subregion": "Western Asia",
+            "population": 10134800,
+            "area": 21937,
+            "languages": [
+                  "Arabic",
+                  "Hebrew"
+            ],
+            "currencies": [
+                  "Israeli new shekel (₪)"
+            ]
+      },
+      "PS": {
+            "official": "State of Palestine",
+            "subregion": "Western Asia",
+            "population": 5483450,
+            "area": 6220,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Egyptian pound (E£)",
+                  "Israeli new shekel (₪)",
+                  "Jordanian dinar (JD)"
+            ]
+      },
+      "LB": {
+            "official": "Lebanese Republic",
+            "subregion": "Western Asia",
+            "population": 5490000,
+            "area": 10452,
+            "languages": [
+                  "Arabic",
+                  "French"
+            ],
+            "currencies": [
+                  "Lebanese pound (ل.ل)"
+            ]
+      },
+      "SY": {
+            "official": "Syrian Arab Republic",
+            "subregion": "Western Asia",
+            "population": 25620000,
+            "area": 185180,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Syrian pound (£)"
+            ]
+      },
+      "JO": {
+            "official": "Hashemite Kingdom of Jordan",
+            "subregion": "Western Asia",
+            "population": 11734000,
+            "area": 89342,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Jordanian dinar (د.ا)"
+            ]
+      },
+      "AM": {
+            "official": "Republic of Armenia",
+            "subregion": "Western Asia",
+            "population": 3076200,
+            "area": 29743,
+            "languages": [
+                  "Armenian"
+            ],
+            "currencies": [
+                  "Armenian dram (֏)"
+            ]
+      },
+      "AZ": {
+            "official": "Republic of Azerbaijan",
+            "subregion": "Western Asia",
+            "population": 10241722,
+            "area": 86600,
+            "languages": [
+                  "Azerbaijani"
+            ],
+            "currencies": [
+                  "Azerbaijani manat (₼)"
+            ]
+      },
+      "GE": {
+            "official": "Georgia",
+            "subregion": "Western Asia",
+            "population": 4000921,
+            "area": 69700,
+            "languages": [
+                  "Georgian"
+            ],
+            "currencies": [
+                  "lari (₾)"
+            ]
+      },
+      "GB": {
+            "official": "United Kingdom of Great Britain and Northern Ireland",
+            "subregion": "Northern Europe",
+            "population": 69281437,
+            "area": 244376,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "British pound (£)"
+            ]
+      },
+      "IE": {
+            "official": "Republic of Ireland",
+            "subregion": "Northern Europe",
+            "population": 5458600,
+            "area": 70273,
+            "languages": [
+                  "English",
+                  "Irish"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "FR": {
+            "official": "French Republic",
+            "subregion": "Western Europe",
+            "population": 66351959,
+            "area": 543908,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "ES": {
+            "official": "Kingdom of Spain",
+            "subregion": "Southern Europe",
+            "population": 49315949,
+            "area": 505992,
+            "languages": [
+                  "Spanish",
+                  "Catalan",
+                  "Basque",
+                  "Galician"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "PT": {
+            "official": "Portuguese Republic",
+            "subregion": "Southern Europe",
+            "population": 10749635,
+            "area": 92090,
+            "languages": [
+                  "Portuguese"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "AD": {
+            "official": "Principality of Andorra",
+            "subregion": "Southern Europe",
+            "population": 88406,
+            "area": 468,
+            "languages": [
+                  "Catalan"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "MC": {
+            "official": "Principality of Monaco",
+            "subregion": "Western Europe",
+            "population": 38423,
+            "area": 2.02,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "BE": {
+            "official": "Kingdom of Belgium",
+            "subregion": "Western Europe",
+            "population": 11825551,
+            "area": 30528,
+            "languages": [
+                  "German",
+                  "French",
+                  "Dutch"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "NL": {
+            "official": "Kingdom of the Netherlands",
+            "subregion": "Western Europe",
+            "population": 18100436,
+            "area": 41865,
+            "languages": [
+                  "Dutch"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "LU": {
+            "official": "Grand Duchy of Luxembourg",
+            "subregion": "Western Europe",
+            "population": 681973,
+            "area": 2586,
+            "languages": [
+                  "German",
+                  "French",
+                  "Luxembourgish"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "DE": {
+            "official": "Federal Republic of Germany",
+            "subregion": "Western Europe",
+            "population": 83491249,
+            "area": 357114,
+            "languages": [
+                  "German"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "CH": {
+            "official": "Swiss Confederation",
+            "subregion": "Western Europe",
+            "population": 9082848,
+            "area": 41284,
+            "languages": [
+                  "French",
+                  "Swiss German",
+                  "Italian",
+                  "Romansh"
+            ],
+            "currencies": [
+                  "Swiss franc (Fr.)"
+            ]
+      },
+      "AT": {
+            "official": "Republic of Austria",
+            "subregion": "Central Europe",
+            "population": 9200931,
+            "area": 83871,
+            "languages": [
+                  "German"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "IT": {
+            "official": "Italian Republic",
+            "subregion": "Southern Europe",
+            "population": 58927633,
+            "area": 301336,
+            "languages": [
+                  "Italian",
+                  "Catalan"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "VA": {
+            "official": "Vatican City State",
+            "subregion": "Southern Europe",
+            "population": 882,
+            "area": 0.49,
+            "languages": [
+                  "Italian",
+                  "Latin"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "SM": {
+            "official": "Republic of San Marino",
+            "subregion": "Southern Europe",
+            "population": 34132,
+            "area": 61,
+            "languages": [
+                  "Italian"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "MT": {
+            "official": "Republic of Malta",
+            "subregion": "Southern Europe",
+            "population": 574250,
+            "area": 316,
+            "languages": [
+                  "English",
+                  "Maltese"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "CY": {
+            "official": "Republic of Cyprus",
+            "subregion": "Southern Europe",
+            "population": 1442614,
+            "area": 9251,
+            "languages": [
+                  "Greek",
+                  "Turkish"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "LI": {
+            "official": "Principality of Liechtenstein",
+            "subregion": "Western Europe",
+            "population": 40900,
+            "area": 160,
+            "languages": [
+                  "German"
+            ],
+            "currencies": [
+                  "Swiss franc (Fr)"
+            ]
+      },
+      "PL": {
+            "official": "Republic of Poland",
+            "subregion": "Central Europe",
+            "population": 37392000,
+            "area": 312679,
+            "languages": [
+                  "Polish"
+            ],
+            "currencies": [
+                  "Polish złoty (zł)"
+            ]
+      },
+      "CZ": {
+            "official": "Czech Republic",
+            "subregion": "Central Europe",
+            "population": 10882341,
+            "area": 78865,
+            "languages": [
+                  "Czech",
+                  "Slovak"
+            ],
+            "currencies": [
+                  "Czech koruna (Kč)"
+            ]
+      },
+      "SK": {
+            "official": "Slovak Republic",
+            "subregion": "Central Europe",
+            "population": 5413813,
+            "area": 49037,
+            "languages": [
+                  "Slovak"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "HU": {
+            "official": "Hungary",
+            "subregion": "Central Europe",
+            "population": 9539502,
+            "area": 93028,
+            "languages": [
+                  "Hungarian"
+            ],
+            "currencies": [
+                  "Hungarian forint (Ft)"
+            ]
+      },
+      "SI": {
+            "official": "Republic of Slovenia",
+            "subregion": "Central Europe",
+            "population": 2130638,
+            "area": 20273,
+            "languages": [
+                  "Slovene"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "HR": {
+            "official": "Republic of Croatia",
+            "subregion": "Southeast Europe",
+            "population": 3866233,
+            "area": 56594,
+            "languages": [
+                  "Croatian"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "BA": {
+            "official": "Bosnia and Herzegovina",
+            "subregion": "Southeast Europe",
+            "population": 3422000,
+            "area": 51209,
+            "languages": [
+                  "Bosnian",
+                  "Croatian",
+                  "Serbian"
+            ],
+            "currencies": [
+                  "Bosnia and Herzegovina convertible mark (KM)"
+            ]
+      },
+      "RS": {
+            "official": "Republic of Serbia",
+            "subregion": "Southeast Europe",
+            "population": 6567783,
+            "area": 77589,
+            "languages": [
+                  "Serbian"
+            ],
+            "currencies": [
+                  "Serbian dinar (дин.)"
+            ]
+      },
+      "ME": {
+            "official": "Montenegro",
+            "subregion": "Southeast Europe",
+            "population": 623327,
+            "area": 13812,
+            "languages": [
+                  "Montenegrin"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "AL": {
+            "official": "Republic of Albania",
+            "subregion": "Southeast Europe",
+            "population": 2363314,
+            "area": 28748,
+            "languages": [
+                  "Albanian"
+            ],
+            "currencies": [
+                  "Albanian lek (L)"
+            ]
+      },
+      "MK": {
+            "official": "Republic of North Macedonia",
+            "subregion": "Southeast Europe",
+            "population": 1822612,
+            "area": 25713,
+            "languages": [
+                  "Macedonian"
+            ],
+            "currencies": [
+                  "denar (den)"
+            ]
+      },
+      "GR": {
+            "official": "Hellenic Republic",
+            "subregion": "Southern Europe",
+            "population": 10400720,
+            "area": 131990,
+            "languages": [
+                  "Greek"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "BG": {
+            "official": "Republic of Bulgaria",
+            "subregion": "Southeast Europe",
+            "population": 6437360,
+            "area": 110879,
+            "languages": [
+                  "Bulgarian"
+            ],
+            "currencies": [
+                  "Bulgarian lev (лв)"
+            ]
+      },
+      "RO": {
+            "official": "Romania",
+            "subregion": "Southeast Europe",
+            "population": 19036031,
+            "area": 238391,
+            "languages": [
+                  "Romanian"
+            ],
+            "currencies": [
+                  "Romanian leu (lei)"
+            ]
+      },
+      "MD": {
+            "official": "Republic of Moldova",
+            "subregion": "Eastern Europe",
+            "population": 2749076,
+            "area": 33847,
+            "languages": [
+                  "Romanian"
+            ],
+            "currencies": [
+                  "Moldovan leu (L)"
+            ]
+      },
+      "UA": {
+            "official": "Ukraine",
+            "subregion": "Eastern Europe",
+            "population": 32862000,
+            "area": 603550,
+            "languages": [
+                  "Ukrainian"
+            ],
+            "currencies": [
+                  "Ukrainian hryvnia (₴)"
+            ]
+      },
+      "BY": {
+            "official": "Republic of Belarus",
+            "subregion": "Eastern Europe",
+            "population": 9109280,
+            "area": 207600,
+            "languages": [
+                  "Belarusian",
+                  "Russian"
+            ],
+            "currencies": [
+                  "Belarusian ruble (Br)"
+            ]
+      },
+      "LT": {
+            "official": "Republic of Lithuania",
+            "subregion": "Northern Europe",
+            "population": 2894886,
+            "area": 65300,
+            "languages": [
+                  "Lithuanian"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "LV": {
+            "official": "Republic of Latvia",
+            "subregion": "Northern Europe",
+            "population": 1829000,
+            "area": 64559,
+            "languages": [
+                  "Latvian"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "EE": {
+            "official": "Republic of Estonia",
+            "subregion": "Northern Europe",
+            "population": 1369995,
+            "area": 45227,
+            "languages": [
+                  "Estonian"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "FI": {
+            "official": "Republic of Finland",
+            "subregion": "Northern Europe",
+            "population": 5650325,
+            "area": 338455,
+            "languages": [
+                  "Finnish",
+                  "Swedish"
+            ],
+            "currencies": [
+                  "euro (€)"
+            ]
+      },
+      "SE": {
+            "official": "Kingdom of Sweden",
+            "subregion": "Northern Europe",
+            "population": 10605098,
+            "area": 450295,
+            "languages": [
+                  "Swedish"
+            ],
+            "currencies": [
+                  "Swedish krona (kr)"
+            ]
+      },
+      "NO": {
+            "official": "Kingdom of Norway",
+            "subregion": "Northern Europe",
+            "population": 5606944,
+            "area": 386224,
+            "languages": [
+                  "Norwegian Nynorsk",
+                  "Norwegian Bokmål",
+                  "Sami"
+            ],
+            "currencies": [
+                  "Norwegian krone (kr)"
+            ]
+      },
+      "DK": {
+            "official": "Kingdom of Denmark",
+            "subregion": "Northern Europe",
+            "population": 6011488,
+            "area": 43094,
+            "languages": [
+                  "Danish"
+            ],
+            "currencies": [
+                  "Danish krone (kr)"
+            ]
+      },
+      "IS": {
+            "official": "Iceland",
+            "subregion": "Northern Europe",
+            "population": 391810,
+            "area": 103000,
+            "languages": [
+                  "Icelandic"
+            ],
+            "currencies": [
+                  "Icelandic króna (kr)"
+            ]
+      },
+      "RU": {
+            "official": "Russian Federation",
+            "subregion": "Eastern Europe",
+            "population": 146028325,
+            "area": 17098246,
+            "languages": [
+                  "Russian"
+            ],
+            "currencies": [
+                  "Russian ruble (₽)"
+            ]
+      },
+      "EG": {
+            "official": "Arab Republic of Egypt",
+            "subregion": "Northern Africa",
+            "population": 107271260,
+            "area": 1002450,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Egyptian pound (£)"
+            ]
+      },
+      "LY": {
+            "official": "State of Libya",
+            "subregion": "Northern Africa",
+            "population": 7459000,
+            "area": 1759540,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Libyan dinar (ل.د)"
+            ]
+      },
+      "TN": {
+            "official": "Tunisian Republic",
+            "subregion": "Northern Africa",
+            "population": 11972169,
+            "area": 163610,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Tunisian dinar (د.ت)"
+            ]
+      },
+      "DZ": {
+            "official": "People's Democratic Republic of Algeria",
+            "subregion": "Northern Africa",
+            "population": 47400000,
+            "area": 2381741,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Algerian dinar (د.ج)"
+            ]
+      },
+      "MA": {
+            "official": "Kingdom of Morocco",
+            "subregion": "Northern Africa",
+            "population": 36828330,
+            "area": 446550,
+            "languages": [
+                  "Arabic",
+                  "Berber"
+            ],
+            "currencies": [
+                  "Moroccan dirham (د.م.)"
+            ]
+      },
+      "SD": {
+            "official": "Republic of the Sudan",
+            "subregion": "Northern Africa",
+            "population": 51662000,
+            "area": 1886068,
+            "languages": [
+                  "Arabic",
+                  "English"
+            ],
+            "currencies": [
+                  "Sudanese pound (ج.س)"
+            ]
+      },
+      "SS": {
+            "official": "Republic of South Sudan",
+            "subregion": "Middle Africa",
+            "population": 15786898,
+            "area": 619745,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "South Sudanese pound (£)"
+            ]
+      },
+      "ET": {
+            "official": "Federal Democratic Republic of Ethiopia",
+            "subregion": "Eastern Africa",
+            "population": 111652998,
+            "area": 1104300,
+            "languages": [
+                  "Amharic"
+            ],
+            "currencies": [
+                  "Ethiopian birr (Br)"
+            ]
+      },
+      "ER": {
+            "official": "State of Eritrea",
+            "subregion": "Eastern Africa",
+            "population": 3607000,
+            "area": 117600,
+            "languages": [
+                  "Arabic",
+                  "English",
+                  "Tigrinya"
+            ],
+            "currencies": [
+                  "Eritrean nakfa (Nfk)"
+            ]
+      },
+      "DJ": {
+            "official": "Republic of Djibouti",
+            "subregion": "Eastern Africa",
+            "population": 1066809,
+            "area": 23200,
+            "languages": [
+                  "Arabic",
+                  "French"
+            ],
+            "currencies": [
+                  "Djiboutian franc (Fr)"
+            ]
+      },
+      "SO": {
+            "official": "Federal Republic of Somalia",
+            "subregion": "Eastern Africa",
+            "population": 19655000,
+            "area": 637657,
+            "languages": [
+                  "Arabic",
+                  "Somali"
+            ],
+            "currencies": [
+                  "Somali shilling (Sh)"
+            ]
+      },
+      "KE": {
+            "official": "Republic of Kenya",
+            "subregion": "Eastern Africa",
+            "population": 53330978,
+            "area": 580367,
+            "languages": [
+                  "English",
+                  "Swahili"
+            ],
+            "currencies": [
+                  "Kenyan shilling (Sh)"
+            ]
+      },
+      "UG": {
+            "official": "Republic of Uganda",
+            "subregion": "Eastern Africa",
+            "population": 45905417,
+            "area": 241550,
+            "languages": [
+                  "English",
+                  "Swahili"
+            ],
+            "currencies": [
+                  "Ugandan shilling (Sh)"
+            ]
+      },
+      "RW": {
+            "official": "Republic of Rwanda",
+            "subregion": "Eastern Africa",
+            "population": 14104969,
+            "area": 26338,
+            "languages": [
+                  "English",
+                  "French",
+                  "Kinyarwanda"
+            ],
+            "currencies": [
+                  "Rwandan franc (Fr)"
+            ]
+      },
+      "BI": {
+            "official": "Republic of Burundi",
+            "subregion": "Eastern Africa",
+            "population": 12332788,
+            "area": 27834,
+            "languages": [
+                  "French",
+                  "Kirundi"
+            ],
+            "currencies": [
+                  "Burundian franc (Fr)"
+            ]
+      },
+      "TZ": {
+            "official": "United Republic of Tanzania",
+            "subregion": "Eastern Africa",
+            "population": 68153004,
+            "area": 947303,
+            "languages": [
+                  "English",
+                  "Swahili"
+            ],
+            "currencies": [
+                  "Tanzanian shilling (Sh)"
+            ]
+      },
+      "CD": {
+            "official": "Democratic Republic of the Congo",
+            "subregion": "Middle Africa",
+            "population": 112832000,
+            "area": 2344858,
+            "languages": [
+                  "French",
+                  "Kikongo",
+                  "Lingala",
+                  "Tshiluba",
+                  "Swahili"
+            ],
+            "currencies": [
+                  "Congolese franc (FC)"
+            ]
+      },
+      "CG": {
+            "official": "Republic of the Congo",
+            "subregion": "Middle Africa",
+            "population": 6142180,
+            "area": 342000,
+            "languages": [
+                  "French",
+                  "Kikongo",
+                  "Lingala"
+            ],
+            "currencies": [
+                  "Central African CFA franc (Fr)"
+            ]
+      },
+      "GA": {
+            "official": "Gabonese Republic",
+            "subregion": "Middle Africa",
+            "population": 2469296,
+            "area": 267668,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "Central African CFA franc (Fr)"
+            ]
+      },
+      "GQ": {
+            "official": "Republic of Equatorial Guinea",
+            "subregion": "Middle Africa",
+            "population": 1668768,
+            "area": 28051,
+            "languages": [
+                  "French",
+                  "Portuguese",
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Central African CFA franc (Fr)"
+            ]
+      },
+      "CM": {
+            "official": "Republic of Cameroon",
+            "subregion": "Middle Africa",
+            "population": 29442327,
+            "area": 475442,
+            "languages": [
+                  "English",
+                  "French"
+            ],
+            "currencies": [
+                  "Central African CFA franc (Fr)"
+            ]
+      },
+      "NG": {
+            "official": "Federal Republic of Nigeria",
+            "subregion": "Western Africa",
+            "population": 223800000,
+            "area": 923768,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Nigerian naira (₦)"
+            ]
+      },
+      "NE": {
+            "official": "Republic of Niger",
+            "subregion": "Western Africa",
+            "population": 26312034,
+            "area": 1267000,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "TD": {
+            "official": "Republic of Chad",
+            "subregion": "Middle Africa",
+            "population": 19340757,
+            "area": 1284000,
+            "languages": [
+                  "Arabic",
+                  "French"
+            ],
+            "currencies": [
+                  "Central African CFA franc (Fr)"
+            ]
+      },
+      "CF": {
+            "official": "Central African Republic",
+            "subregion": "Middle Africa",
+            "population": 6470307,
+            "area": 622984,
+            "languages": [
+                  "French",
+                  "Sango"
+            ],
+            "currencies": [
+                  "Central African CFA franc (Fr)"
+            ]
+      },
+      "GH": {
+            "official": "Republic of Ghana",
+            "subregion": "Western Africa",
+            "population": 33742380,
+            "area": 238533,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Ghanaian cedi (₵)"
+            ]
+      },
+      "CI": {
+            "official": "Republic of Côte d'Ivoire",
+            "subregion": "Western Africa",
+            "population": 31719275,
+            "area": 322463,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "LR": {
+            "official": "Republic of Liberia",
+            "subregion": "Western Africa",
+            "population": 5248621,
+            "area": 111369,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Liberian dollar ($)"
+            ]
+      },
+      "SL": {
+            "official": "Republic of Sierra Leone",
+            "subregion": "Western Africa",
+            "population": 9077691,
+            "area": 71740,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Leone (Le)"
+            ]
+      },
+      "GN": {
+            "official": "Republic of Guinea",
+            "subregion": "Western Africa",
+            "population": 14363931,
+            "area": 245857,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "Guinean franc (Fr)"
+            ]
+      },
+      "GW": {
+            "official": "Republic of Guinea-Bissau",
+            "subregion": "Western Africa",
+            "population": 1781308,
+            "area": 36125,
+            "languages": [
+                  "Portuguese",
+                  "Upper Guinea Creole"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "SN": {
+            "official": "Republic of Senegal",
+            "subregion": "Western Africa",
+            "population": 18593258,
+            "area": 196722,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "GM": {
+            "official": "Republic of the Gambia",
+            "subregion": "Western Africa",
+            "population": 2422712,
+            "area": 10689,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "dalasi (D)"
+            ]
+      },
+      "MR": {
+            "official": "Islamic Republic of Mauritania",
+            "subregion": "Western Africa",
+            "population": 4927532,
+            "area": 1030700,
+            "languages": [
+                  "Arabic"
+            ],
+            "currencies": [
+                  "Mauritanian ouguiya (UM)"
+            ]
+      },
+      "ML": {
+            "official": "Republic of Mali",
+            "subregion": "Western Africa",
+            "population": 22395489,
+            "area": 1240192,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "BF": {
+            "official": "Burkina Faso",
+            "subregion": "Western Africa",
+            "population": 24070553,
+            "area": 272967,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "BJ": {
+            "official": "Republic of Benin",
+            "subregion": "Western Africa",
+            "population": 13224860,
+            "area": 112622,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "TG": {
+            "official": "Togolese Republic",
+            "subregion": "Western Africa",
+            "population": 8095498,
+            "area": 56785,
+            "languages": [
+                  "French"
+            ],
+            "currencies": [
+                  "West African CFA franc (Fr)"
+            ]
+      },
+      "CV": {
+            "official": "Republic of Cabo Verde",
+            "subregion": "Western Africa",
+            "population": 491233,
+            "area": 4033,
+            "languages": [
+                  "Portuguese"
+            ],
+            "currencies": [
+                  "Cape Verdean escudo (Esc)"
+            ]
+      },
+      "ST": {
+            "official": "Democratic Republic of São Tomé and Príncipe",
+            "subregion": "Middle Africa",
+            "population": 209607,
+            "area": 964,
+            "languages": [
+                  "Portuguese"
+            ],
+            "currencies": [
+                  "São Tomé and Príncipe dobra (Db)"
+            ]
+      },
+      "AO": {
+            "official": "Republic of Angola",
+            "subregion": "Middle Africa",
+            "population": 36170961,
+            "area": 1246700,
+            "languages": [
+                  "Portuguese"
+            ],
+            "currencies": [
+                  "Angolan kwanza (Kz)"
+            ]
+      },
+      "ZM": {
+            "official": "Republic of Zambia",
+            "subregion": "Eastern Africa",
+            "population": 19693423,
+            "area": 752612,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Zambian kwacha (ZK)"
+            ]
+      },
+      "ZW": {
+            "official": "Republic of Zimbabwe",
+            "subregion": "Southern Africa",
+            "population": 17073087,
+            "area": 390757,
+            "languages": [
+                  "Chibarwe",
+                  "English",
+                  "Kalanga",
+                  "Khoisan",
+                  "Ndau",
+                  "Northern Ndebele",
+                  "Chewa",
+                  "Shona",
+                  "Sotho",
+                  "Tonga",
+                  "Tswana",
+                  "Tsonga",
+                  "Venda",
+                  "Xhosa",
+                  "Zimbabwean Sign Language"
+            ],
+            "currencies": [
+                  "Zimbabwean dollar ($)"
+            ]
+      },
+      "MZ": {
+            "official": "Republic of Mozambique",
+            "subregion": "Eastern Africa",
+            "population": 34090466,
+            "area": 801590,
+            "languages": [
+                  "Portuguese"
+            ],
+            "currencies": [
+                  "Mozambican metical (MT)"
+            ]
+      },
+      "MW": {
+            "official": "Republic of Malawi",
+            "subregion": "Eastern Africa",
+            "population": 20734262,
+            "area": 118484,
+            "languages": [
+                  "English",
+                  "Chewa"
+            ],
+            "currencies": [
+                  "Malawian kwacha (MK)"
+            ]
+      },
+      "NA": {
+            "official": "Republic of Namibia",
+            "subregion": "Southern Africa",
+            "population": 3022401,
+            "area": 825615,
+            "languages": [
+                  "Afrikaans",
+                  "German",
+                  "English",
+                  "Herero",
+                  "Khoekhoe",
+                  "Kwangali",
+                  "Lozi",
+                  "Ndonga",
+                  "Tswana"
+            ],
+            "currencies": [
+                  "Namibian dollar ($)",
+                  "South African rand (R)"
+            ]
+      },
+      "BW": {
+            "official": "Republic of Botswana",
+            "subregion": "Southern Africa",
+            "population": 2359609,
+            "area": 582000,
+            "languages": [
+                  "English",
+                  "Tswana"
+            ],
+            "currencies": [
+                  "Botswana pula (P)"
+            ]
+      },
+      "ZA": {
+            "official": "Republic of South Africa",
+            "subregion": "Southern Africa",
+            "population": 63100945,
+            "area": 1221037,
+            "languages": [
+                  "Afrikaans",
+                  "English",
+                  "Southern Ndebele",
+                  "Northern Sotho",
+                  "Southern Sotho",
+                  "Swazi",
+                  "Tswana",
+                  "Tsonga",
+                  "Venda",
+                  "Xhosa",
+                  "Zulu"
+            ],
+            "currencies": [
+                  "South African rand (R)"
+            ]
+      },
+      "LS": {
+            "official": "Kingdom of Lesotho",
+            "subregion": "Southern Africa",
+            "population": 2116427,
+            "area": 30355,
+            "languages": [
+                  "English",
+                  "Sotho"
+            ],
+            "currencies": [
+                  "Lesotho loti (L)",
+                  "South African rand (R)"
+            ]
+      },
+      "SZ": {
+            "official": "Kingdom of Eswatini",
+            "subregion": "Southern Africa",
+            "population": 1235549,
+            "area": 17364,
+            "languages": [
+                  "English",
+                  "Swazi"
+            ],
+            "currencies": [
+                  "Swazi lilangeni (L)",
+                  "South African rand (R)"
+            ]
+      },
+      "MG": {
+            "official": "Republic of Madagascar",
+            "subregion": "Eastern Africa",
+            "population": 31727042,
+            "area": 587041,
+            "languages": [
+                  "French",
+                  "Malagasy"
+            ],
+            "currencies": [
+                  "Malagasy ariary (Ar)"
+            ]
+      },
+      "MU": {
+            "official": "Republic of Mauritius",
+            "subregion": "Eastern Africa",
+            "population": 1243741,
+            "area": 2040,
+            "languages": [
+                  "English",
+                  "French",
+                  "Mauritian Creole"
+            ],
+            "currencies": [
+                  "Mauritian rupee (₨)"
+            ]
+      },
+      "SC": {
+            "official": "Republic of Seychelles",
+            "subregion": "Eastern Africa",
+            "population": 122729,
+            "area": 452,
+            "languages": [
+                  "Seychellois Creole",
+                  "English",
+                  "French"
+            ],
+            "currencies": [
+                  "Seychellois rupee (₨)"
+            ]
+      },
+      "KM": {
+            "official": "Union of the Comoros",
+            "subregion": "Eastern Africa",
+            "population": 919901,
+            "area": 1862,
+            "languages": [
+                  "Arabic",
+                  "French",
+                  "Comorian"
+            ],
+            "currencies": [
+                  "Comorian franc (Fr)"
+            ]
+      },
+      "US": {
+            "official": "United States of America",
+            "subregion": "North America",
+            "population": 340110988,
+            "area": 9525067,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      },
+      "CA": {
+            "official": "Canada",
+            "subregion": "North America",
+            "population": 41651653,
+            "area": 9984670,
+            "languages": [
+                  "English",
+                  "French"
+            ],
+            "currencies": [
+                  "Canadian dollar ($)"
+            ]
+      },
+      "MX": {
+            "official": "United Mexican States",
+            "subregion": "North America",
+            "population": 130575786,
+            "area": 1964375,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Mexican peso ($)"
+            ]
+      },
+      "GT": {
+            "official": "Republic of Guatemala",
+            "subregion": "Central America",
+            "population": 18079810,
+            "area": 108889,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Guatemalan quetzal (Q)"
+            ]
+      },
+      "BZ": {
+            "official": "Belize",
+            "subregion": "Central America",
+            "population": 417634,
+            "area": 22966,
+            "languages": [
+                  "Belizean Creole",
+                  "English",
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Belize dollar ($)"
+            ]
+      },
+      "HN": {
+            "official": "Republic of Honduras",
+            "subregion": "Central America",
+            "population": 9892632,
+            "area": 112492,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Honduran lempira (L)"
+            ]
+      },
+      "SV": {
+            "official": "Republic of El Salvador",
+            "subregion": "Central America",
+            "population": 6029976,
+            "area": 21041,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      },
+      "NI": {
+            "official": "Republic of Nicaragua",
+            "subregion": "Central America",
+            "population": 6803886,
+            "area": 130373,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Nicaraguan córdoba (C$)"
+            ]
+      },
+      "CR": {
+            "official": "Republic of Costa Rica",
+            "subregion": "Central America",
+            "population": 5309625,
+            "area": 51100,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Costa Rican colón (₡)"
+            ]
+      },
+      "PA": {
+            "official": "Republic of Panama",
+            "subregion": "Central America",
+            "population": 4064780,
+            "area": 75417,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Panamanian balboa (B/.)",
+                  "United States dollar ($)"
+            ]
+      },
+      "CU": {
+            "official": "Republic of Cuba",
+            "subregion": "Caribbean",
+            "population": 9748007,
+            "area": 109884,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Cuban convertible peso ($)",
+                  "Cuban peso ($)"
+            ]
+      },
+      "HT": {
+            "official": "Republic of Haiti",
+            "subregion": "Caribbean",
+            "population": 11867032,
+            "area": 27750,
+            "languages": [
+                  "French",
+                  "Haitian Creole"
+            ],
+            "currencies": [
+                  "Haitian gourde (G)"
+            ]
+      },
+      "DO": {
+            "official": "Dominican Republic",
+            "subregion": "Caribbean",
+            "population": 10771504,
+            "area": 48671,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Dominican peso ($)"
+            ]
+      },
+      "JM": {
+            "official": "Jamaica",
+            "subregion": "Caribbean",
+            "population": 2825544,
+            "area": 10991,
+            "languages": [
+                  "English",
+                  "Jamaican Patois"
+            ],
+            "currencies": [
+                  "Jamaican dollar ($)"
+            ]
+      },
+      "TT": {
+            "official": "Republic of Trinidad and Tobago",
+            "subregion": "Caribbean",
+            "population": 1367764,
+            "area": 5130,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Trinidad and Tobago dollar ($)"
+            ]
+      },
+      "BB": {
+            "official": "Barbados",
+            "subregion": "Caribbean",
+            "population": 267800,
+            "area": 430,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Barbadian dollar ($)"
+            ]
+      },
+      "BS": {
+            "official": "Commonwealth of the Bahamas",
+            "subregion": "Caribbean",
+            "population": 398165,
+            "area": 13943,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Bahamian dollar ($)",
+                  "United States dollar ($)"
+            ]
+      },
+      "AG": {
+            "official": "Antigua and Barbuda",
+            "subregion": "Caribbean",
+            "population": 103603,
+            "area": 442,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Eastern Caribbean dollar ($)"
+            ]
+      },
+      "DM": {
+            "official": "Commonwealth of Dominica",
+            "subregion": "Caribbean",
+            "population": 67408,
+            "area": 751,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Eastern Caribbean dollar ($)"
+            ]
+      },
+      "GD": {
+            "official": "Grenada",
+            "subregion": "Caribbean",
+            "population": 109021,
+            "area": 344,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Eastern Caribbean dollar ($)"
+            ]
+      },
+      "KN": {
+            "official": "Federation of Saint Christopher and Nevis",
+            "subregion": "Caribbean",
+            "population": 51320,
+            "area": 261,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Eastern Caribbean dollar ($)"
+            ]
+      },
+      "LC": {
+            "official": "Saint Lucia",
+            "subregion": "Caribbean",
+            "population": 184100,
+            "area": 616,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Eastern Caribbean dollar ($)"
+            ]
+      },
+      "VC": {
+            "official": "Saint Vincent and the Grenadines",
+            "subregion": "Caribbean",
+            "population": 110872,
+            "area": 389,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Eastern Caribbean dollar ($)"
+            ]
+      },
+      "CO": {
+            "official": "Republic of Colombia",
+            "subregion": "South America",
+            "population": 53057212,
+            "area": 1141748,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Colombian peso ($)"
+            ]
+      },
+      "VE": {
+            "official": "Bolivarian Republic of Venezuela",
+            "subregion": "South America",
+            "population": 28517000,
+            "area": 916445,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Venezuelan bolívar soberano (Bs.S.)"
+            ]
+      },
+      "GY": {
+            "official": "Co-operative Republic of Guyana",
+            "subregion": "South America",
+            "population": 772975,
+            "area": 214969,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Guyanese dollar ($)"
+            ]
+      },
+      "SR": {
+            "official": "Republic of Suriname",
+            "subregion": "South America",
+            "population": 616500,
+            "area": 163820,
+            "languages": [
+                  "Dutch"
+            ],
+            "currencies": [
+                  "Surinamese dollar ($)"
+            ]
+      },
+      "EC": {
+            "official": "Republic of Ecuador",
+            "subregion": "South America",
+            "population": 18103660,
+            "area": 276841,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      },
+      "PE": {
+            "official": "Republic of Peru",
+            "subregion": "South America",
+            "population": 34350244,
+            "area": 1285216,
+            "languages": [
+                  "Aymara",
+                  "Quechua",
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Peruvian sol (S/ )"
+            ]
+      },
+      "BR": {
+            "official": "Federative Republic of Brazil",
+            "subregion": "South America",
+            "population": 213421037,
+            "area": 8515767,
+            "languages": [
+                  "Portuguese"
+            ],
+            "currencies": [
+                  "Brazilian real (R$)"
+            ]
+      },
+      "BO": {
+            "official": "Plurinational State of Bolivia",
+            "subregion": "South America",
+            "population": 11365333,
+            "area": 1098581,
+            "languages": [
+                  "Aymara",
+                  "Guaraní",
+                  "Quechua",
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Bolivian boliviano (Bs.)"
+            ]
+      },
+      "PY": {
+            "official": "Republic of Paraguay",
+            "subregion": "South America",
+            "population": 6109644,
+            "area": 406752,
+            "languages": [
+                  "Guaraní",
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Paraguayan guaraní (₲)"
+            ]
+      },
+      "UY": {
+            "official": "Oriental Republic of Uruguay",
+            "subregion": "South America",
+            "population": 3499451,
+            "area": 181034,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Uruguayan peso ($)"
+            ]
+      },
+      "AR": {
+            "official": "Argentine Republic",
+            "subregion": "South America",
+            "population": 46735004,
+            "area": 2780400,
+            "languages": [
+                  "Guaraní",
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Argentine peso ($)"
+            ]
+      },
+      "CL": {
+            "official": "Republic of Chile",
+            "subregion": "South America",
+            "population": 20206953,
+            "area": 756102,
+            "languages": [
+                  "Spanish"
+            ],
+            "currencies": [
+                  "Chilean peso ($)"
+            ]
+      },
+      "AU": {
+            "official": "Commonwealth of Australia",
+            "subregion": "Australia and New Zealand",
+            "population": 27536874,
+            "area": 7692024,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Australian dollar ($)"
+            ]
+      },
+      "NZ": {
+            "official": "New Zealand",
+            "subregion": "Australia and New Zealand",
+            "population": 5324700,
+            "area": 268838,
+            "languages": [
+                  "English",
+                  "Māori",
+                  "New Zealand Sign Language"
+            ],
+            "currencies": [
+                  "New Zealand dollar ($)"
+            ]
+      },
+      "PG": {
+            "official": "Independent State of Papua New Guinea",
+            "subregion": "Melanesia",
+            "population": 11781559,
+            "area": 462840,
+            "languages": [
+                  "English",
+                  "Hiri Motu",
+                  "Tok Pisin"
+            ],
+            "currencies": [
+                  "Papua New Guinean kina (K)"
+            ]
+      },
+      "FJ": {
+            "official": "Republic of Fiji",
+            "subregion": "Melanesia",
+            "population": 900869,
+            "area": 18272,
+            "languages": [
+                  "English",
+                  "Fijian",
+                  "Fiji Hindi"
+            ],
+            "currencies": [
+                  "Fijian dollar ($)"
+            ]
+      },
+      "SB": {
+            "official": "Solomon Islands",
+            "subregion": "Melanesia",
+            "population": 750325,
+            "area": 28896,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "Solomon Islands dollar ($)"
+            ]
+      },
+      "VU": {
+            "official": "Republic of Vanuatu",
+            "subregion": "Melanesia",
+            "population": 321409,
+            "area": 12189,
+            "languages": [
+                  "Bislama",
+                  "English",
+                  "French"
+            ],
+            "currencies": [
+                  "Vanuatu vatu (Vt)"
+            ]
+      },
+      "WS": {
+            "official": "Independent State of Samoa",
+            "subregion": "Polynesia",
+            "population": 205557,
+            "area": 2842,
+            "languages": [
+                  "English",
+                  "Samoan"
+            ],
+            "currencies": [
+                  "Samoan tālā (T)"
+            ]
+      },
+      "TO": {
+            "official": "Kingdom of Tonga",
+            "subregion": "Polynesia",
+            "population": 100179,
+            "area": 747,
+            "languages": [
+                  "English",
+                  "Tongan"
+            ],
+            "currencies": [
+                  "Tongan paʻanga (T$)"
+            ]
+      },
+      "KI": {
+            "official": "Independent and Sovereign Republic of Kiribati",
+            "subregion": "Micronesia",
+            "population": 120740,
+            "area": 811,
+            "languages": [
+                  "English",
+                  "Gilbertese"
+            ],
+            "currencies": [
+                  "Australian dollar ($)",
+                  "Kiribati dollar ($)"
+            ]
+      },
+      "TV": {
+            "official": "Tuvalu",
+            "subregion": "Polynesia",
+            "population": 10643,
+            "area": 26,
+            "languages": [
+                  "English",
+                  "Tuvaluan"
+            ],
+            "currencies": [
+                  "Australian dollar ($)",
+                  "Tuvaluan dollar ($)"
+            ]
+      },
+      "NR": {
+            "official": "Republic of Nauru",
+            "subregion": "Micronesia",
+            "population": 11680,
+            "area": 21,
+            "languages": [
+                  "English",
+                  "Nauru"
+            ],
+            "currencies": [
+                  "Australian dollar ($)"
+            ]
+      },
+      "MH": {
+            "official": "Republic of the Marshall Islands",
+            "subregion": "Micronesia",
+            "population": 42418,
+            "area": 181,
+            "languages": [
+                  "English",
+                  "Marshallese"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      },
+      "FM": {
+            "official": "Federated States of Micronesia",
+            "subregion": "Micronesia",
+            "population": 105564,
+            "area": 702,
+            "languages": [
+                  "English"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      },
+      "PW": {
+            "official": "Republic of Palau",
+            "subregion": "Micronesia",
+            "population": 16733,
+            "area": 459,
+            "languages": [
+                  "English",
+                  "Palauan"
+            ],
+            "currencies": [
+                  "United States dollar ($)"
+            ]
+      }
+};
 
     /*
       大陸の簡易ポリゴンです。
@@ -1206,6 +5315,10 @@
       }
 
       const country = state.selected;
+      const detail = COUNTRY_DETAILS[country.cc] || {};
+      const density = detail.population && detail.area ? detail.population / detail.area : null;
+      const tokyoDistance = country.cc === "JP" ? 0 : distanceKm(TOKYO, country);
+      const learningNote = buildLearningNote(country, detail, tokyoDistance);
       infoSheet.innerHTML = `
         <div class="sheet-inner">
           <div class="country-head">
@@ -1219,9 +5332,17 @@
           <div class="facts">
             <div class="fact"><b>首都</b><span>${country.capital}</span></div>
             <div class="fact"><b>地域</b><span>${country.region}</span></div>
-            <div class="fact"><b>緯度</b><span>${formatLat(country.lat)}</span></div>
-            <div class="fact"><b>経度</b><span>${formatLon(country.lon)}</span></div>
+            <div class="fact"><b>サブ地域</b><span>${detail.subregion || "不明"}</span></div>
+            <div class="fact"><b>人口</b><span>${formatPopulation(detail.population)}</span></div>
+            <div class="fact"><b>面積</b><span>${formatArea(detail.area)}</span></div>
+            <div class="fact"><b>人口密度</b><span>${formatDensity(density)}</span></div>
+            <div class="fact"><b>通貨</b><span>${listShort(detail.currencies, 2)}</span></div>
+            <div class="fact"><b>主な言語</b><span>${listShort(detail.languages, 3)}</span></div>
+            <div class="fact"><b>位置</b><span>${hemisphereText(country)} / ${formatLat(country.lat)}, ${formatLon(country.lon)}</span></div>
+            <div class="fact"><b>東京から</b><span>${formatDistance(tokyoDistance)}</span></div>
           </div>
+
+          <p class="learning-note">${learningNote}</p>
 
           <div class="sheet-actions">
             <button class="action-button is-primary" type="button" data-compare="${country.cc}">距離に追加</button>
@@ -1248,6 +5369,49 @@
 
     function formatLon(lon) {
       return `${Math.abs(lon).toFixed(1)}°${lon >= 0 ? "E" : "W"}`;
+    }
+
+    const TOKYO = { lat: 35.69, lon: 139.69 };
+
+    function formatPopulation(value) {
+      if (!value) return "不明";
+      if (value >= 100000000) return `${(value / 100000000).toFixed(1)}億人`;
+      if (value >= 10000) return `${Math.round(value / 10000).toLocaleString("ja-JP")}万人`;
+      return `${value.toLocaleString("ja-JP")}人`;
+    }
+
+    function formatArea(value) {
+      if (!value) return "不明";
+      return `${Math.round(value).toLocaleString("ja-JP")} km²`;
+    }
+
+    function formatDensity(value) {
+      if (!value) return "不明";
+      return `${value.toFixed(value >= 10 ? 0 : 1)} 人/km²`;
+    }
+
+    function formatDistance(value) {
+      if (value === 0) return "ここ";
+      return `約 ${Math.round(value).toLocaleString("ja-JP")} km`;
+    }
+
+    function listShort(items, max) {
+      if (!items || items.length === 0) return "不明";
+      const shown = items.slice(0, max);
+      const rest = items.length - shown.length;
+      return rest > 0 ? `${shown.join(", ")} ほか${rest}` : shown.join(", ");
+    }
+
+    function hemisphereText(country) {
+      const northSouth = country.lat >= 0 ? "北半球" : "南半球";
+      const eastWest = country.lon >= 0 ? "東半球" : "西半球";
+      return `${northSouth}・${eastWest}`;
+    }
+
+    function buildLearningNote(country, detail, tokyoDistance) {
+      const density = detail.population && detail.area ? detail.population / detail.area : null;
+      const subregion = detail.subregion ? `、${detail.subregion}` : "";
+      return `首都 ${country.capital} は${hemisphereText(country)}にあります。東京からは${formatDistance(tokyoDistance)}。人口密度は${formatDensity(density)}で、${country.region}${subregion}の国です。`;
     }
 
     /*
@@ -1335,7 +5499,7 @@
       }
       options.sort(() => Math.random() - 0.5);
 
-      state.quiz = { answer, options, answered: null };
+      state.quiz = { answer, options, answered: null, region };
       state.quizOpen = true;
       renderQuiz();
     }
@@ -1357,29 +5521,47 @@
         return `<button class="option-button ${klass}" type="button" data-answer="${country.cc}">${flagFromCode(country.cc)} ${country.name}</button>`;
       }).join("");
 
+      const feedback = answered
+        ? (answered.cc === answer.cc ? "正解" : `正解は ${flagFromCode(answer.cc)} ${answer.name}`)
+        : "4択から選択";
+
       quizPanel.innerHTML = `
         <div class="sheet-inner">
-          <h2>首都クイズ</h2>
-          <p>「${answer.capital}」が首都の国は？</p>
+          <div class="quiz-head">
+            <div>
+              <h2>首都クイズ</h2>
+              <p>「${answer.capital}」が首都の国は？ / ${feedback}</p>
+            </div>
+            <button class="mini-icon" type="button" data-close-quiz title="閉じる" aria-label="首都クイズを閉じる">←</button>
+          </div>
           <div class="quiz-options">${optionHtml}</div>
+          ${answered ? `<div class="quiz-actions"><button class="action-button" type="button" data-close-quiz>閉じる</button><button class="action-button is-primary" type="button" data-next-quiz>次へ</button></div>` : ""}
         </div>
       `;
       quizPanel.classList.add("is-open");
     }
 
     function answerQuiz(code) {
-      if (!state.quiz) return;
+      if (!state.quiz || state.quiz.answered) return;
       const picked = byCode.get(code);
       state.quiz.answered = picked;
       renderQuiz();
       if (picked.cc === state.quiz.answer.cc) {
         setSelected(picked);
         showToast("正解です");
-        setTimeout(() => startQuiz(state.selected?.region), 900);
       } else {
         showToast(`正解は ${state.quiz.answer.name}`);
         setSelected(state.quiz.answer);
       }
+    }
+
+    function closeQuiz() {
+      state.quizOpen = false;
+      renderQuiz();
+    }
+
+    function nextQuiz() {
+      startQuiz(state.quiz?.region || state.selected?.region || null);
     }
 
     function showToast(message) {
@@ -1569,6 +5751,12 @@
 
       const answerButton = event.target.closest("[data-answer]");
       if (answerButton) answerQuiz(answerButton.dataset.answer);
+
+      const closeQuizButton = event.target.closest("[data-close-quiz]");
+      if (closeQuizButton) closeQuiz();
+
+      const nextQuizButton = event.target.closest("[data-next-quiz]");
+      if (nextQuizButton) nextQuiz();
 
       if (!event.target.closest(".search")) searchResults.classList.remove("is-open");
     });
