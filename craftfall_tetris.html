@@ -208,6 +208,20 @@
       background: #101821;
     }
 
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .section-hint {
+      color: #b6c5bd;
+      font-size: 0.74rem;
+      line-height: 1.2;
+      text-align: right;
+    }
+
     .inventory,
     .crafting {
       padding: 12px;
@@ -233,6 +247,11 @@
       min-width: 0;
     }
 
+    .resource.is-flash {
+      animation: backpackPulse 0.5s ease;
+      border-color: #8fe58e;
+    }
+
     .swatch {
       width: 18px;
       height: 18px;
@@ -255,6 +274,16 @@
       white-space: nowrap;
     }
 
+    .resource em {
+      display: block;
+      margin-top: 4px;
+      color: #d6e3c6;
+      font-size: 0.68rem;
+      font-style: normal;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
     .tool-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -268,6 +297,10 @@
       align-content: center;
       padding: 9px 6px;
       min-height: 86px;
+    }
+
+    .tool-button.is-ready {
+      border-color: #617a62;
     }
 
     .tool-button.is-active {
@@ -297,6 +330,10 @@
     .cost {
       text-align: center;
       min-height: 28px;
+    }
+
+    .tool-button.is-ready .cost {
+      color: #aee9a9;
     }
 
     .message-box {
@@ -335,6 +372,21 @@
       border: 0;
     }
 
+    @keyframes backpackPulse {
+      0% {
+        transform: scale(1);
+        background: #132019;
+      }
+      45% {
+        transform: scale(1.035);
+        background: #203629;
+      }
+      100% {
+        transform: scale(1);
+        background: #111820;
+      }
+    }
+
     @media (max-width: 840px) {
       body {
         padding: 10px;
@@ -346,6 +398,7 @@
 
       .board-frame {
         width: min(96vw, 410px);
+        width: min(96vw, 410px, calc((100svh - 190px) / 2));
         justify-self: center;
       }
 
@@ -354,9 +407,22 @@
       }
     }
 
+    @supports (height: 100dvh) {
+      @media (max-width: 840px) {
+        .board-frame {
+          width: min(96vw, 410px, calc((100dvh - 190px) / 2));
+        }
+      }
+    }
+
     @media (max-width: 460px) {
       .top-strip {
         grid-template-columns: 1fr;
+      }
+
+      .board-frame {
+        width: min(96vw, 360px);
+        width: min(96vw, calc((100svh - 228px) / 2));
       }
 
       .quick-actions {
@@ -380,6 +446,14 @@
 
       .mobile-controls .wide {
         grid-column: span 1;
+      }
+    }
+
+    @supports (height: 100dvh) {
+      @media (max-width: 460px) {
+        .board-frame {
+          width: min(96vw, calc((100dvh - 228px) / 2));
+        }
       }
     }
   </style>
@@ -432,44 +506,50 @@
       </section>
 
       <section class="inventory">
-        <div class="section-title">INVENTORY</div>
+        <div class="section-header">
+          <div class="section-title">BACKPACK</div>
+          <div class="section-hint">mined materials</div>
+        </div>
         <div class="resource-grid">
-          <div class="resource">
+          <div class="resource" data-resource-card="dirt">
             <i class="swatch" style="background:#8b5a34"></i>
-            <div><strong id="dirtCount">0</strong><span>Dirt</span></div>
+            <div><strong id="dirtCount">0</strong><span>Dirt</span><em>Scaffold</em></div>
           </div>
-          <div class="resource">
+          <div class="resource" data-resource-card="wood">
             <i class="swatch" style="background:#c9904e"></i>
-            <div><strong id="woodCount">0</strong><span>Wood</span></div>
+            <div><strong id="woodCount">0</strong><span>Wood</span><em>Scaffold</em></div>
           </div>
-          <div class="resource">
+          <div class="resource" data-resource-card="stone">
             <i class="swatch" style="background:#94a0aa"></i>
-            <div><strong id="stoneCount">0</strong><span>Stone</span></div>
+            <div><strong id="stoneCount">0</strong><span>Stone</span><em>Pickaxe/TNT</em></div>
           </div>
-          <div class="resource">
+          <div class="resource" data-resource-card="ore">
             <i class="swatch" style="background:#4dd4d0"></i>
-            <div><strong id="oreCount">0</strong><span>Ore</span></div>
+            <div><strong id="oreCount">0</strong><span>Ore</span><em>TNT</em></div>
           </div>
         </div>
       </section>
 
       <section class="crafting">
-        <div class="section-title">CRAFT</div>
+        <div class="section-header">
+          <div class="section-title">CRAFT TABLE</div>
+          <div id="craftHint" class="section-hint">backpack -> tools</div>
+        </div>
         <div class="tool-grid">
           <button id="toolPickaxe" class="tool-button" type="button" data-tool="pickaxe" aria-label="Pickaxe">
             <span class="tool-mark" style="background:var(--stone)">P</span>
             <span class="tool-name">Pickaxe</span>
-            <span class="cost">Stone 3</span>
+            <span class="cost" data-cost-label="pickaxe">Stone 3</span>
           </button>
           <button id="toolScaffold" class="tool-button" type="button" data-tool="scaffold" aria-label="Scaffold">
             <span class="tool-mark" style="background:var(--wood)">S</span>
             <span class="tool-name">Scaffold</span>
-            <span class="cost">Wood 2 / Dirt 2</span>
+            <span class="cost" data-cost-label="scaffold">Wood 2 / Dirt 2</span>
           </button>
           <button id="toolTnt" class="tool-button" type="button" data-tool="tnt" aria-label="TNT">
             <span class="tool-mark" style="background:var(--danger)">T</span>
             <span class="tool-name">TNT</span>
-            <span class="cost">Ore 2 / Stone 1</span>
+            <span class="cost" data-cost-label="tnt">Ore 2 / Stone 1</span>
           </button>
         </div>
       </section>
@@ -519,6 +599,21 @@
         stone: document.getElementById("stoneCount"),
         ore: document.getElementById("oreCount")
       };
+
+      const resourceCards = {
+        dirt: document.querySelector('[data-resource-card="dirt"]'),
+        wood: document.querySelector('[data-resource-card="wood"]'),
+        stone: document.querySelector('[data-resource-card="stone"]'),
+        ore: document.querySelector('[data-resource-card="ore"]')
+      };
+
+      const costTexts = {
+        pickaxe: document.querySelector('[data-cost-label="pickaxe"]'),
+        scaffold: document.querySelector('[data-cost-label="scaffold"]'),
+        tnt: document.querySelector('[data-cost-label="tnt"]')
+      };
+
+      const craftHint = document.getElementById("craftHint");
 
       const toolButtons = {
         pickaxe: document.getElementById("toolPickaxe"),
@@ -697,6 +792,58 @@
         } catch (error) {
           // ブラウザ設定で保存できない場合でも、ゲーム自体は続けられるようにします。
         }
+      }
+
+      function resourceLabel(name) {
+        return {
+          dirt: "Dirt",
+          wood: "Wood",
+          stone: "Stone",
+          ore: "Ore"
+        }[name] || name;
+      }
+
+      function formatCost(cost) {
+        return Object.entries(cost)
+          .map(([name, amount]) => `${resourceLabel(name)} ${amount}`)
+          .join(" / ");
+      }
+
+      function missingCost(cost) {
+        return Object.entries(cost)
+          .map(([name, amount]) => [name, Math.max(0, amount - state.resources[name])])
+          .filter(([, amount]) => amount > 0);
+      }
+
+      function formatMissingCost(cost) {
+        return missingCost(cost)
+          .map(([name, amount]) => `${resourceLabel(name)} ${amount}`)
+          .join(" / ");
+      }
+
+      function snapshotResources() {
+        return { ...state.resources };
+      }
+
+      function describeResourceGains(before) {
+        return Object.entries(state.resources)
+          .map(([name, amount]) => [name, amount - before[name]])
+          .filter(([, amount]) => amount > 0)
+          .map(([name, amount]) => `+${amount} ${resourceLabel(name)}`)
+          .join(", ");
+      }
+
+      function flashResource(name) {
+        const card = resourceCards[name];
+        if (!card) {
+          return;
+        }
+        card.classList.remove("is-flash");
+        // 同じ素材を連続で得たときもアニメーションを最初から再生します。
+        window.requestAnimationFrame(() => {
+          card.classList.add("is-flash");
+          window.setTimeout(() => card.classList.remove("is-flash"), 520);
+        });
       }
 
       function chooseMaterial() {
@@ -995,6 +1142,7 @@
           return;
         }
 
+        const beforeResources = snapshotResources();
         const blastCenters = [];
         const collected = new Set();
 
@@ -1029,7 +1177,9 @@
         state.level = Math.floor(state.lines / 7) + 1;
 
         const label = fullRows.length === 1 ? "layer" : "layers";
-        setMessage(`${fullRows.length} ${label} mined: +${lineScore + comboBonus + depthBonus}`);
+        const gains = describeResourceGains(beforeResources);
+        const backpackText = gains ? ` / Backpack ${gains}` : "";
+        setMessage(`${fullRows.length} ${label} mined: +${lineScore + comboBonus + depthBonus}${backpackText}`);
         updateBest();
         updateUi();
       }
@@ -1037,18 +1187,22 @@
       function collectCell(cell, x, y, collectedSet) {
         const key = `${x},${y}`;
         if (collectedSet && collectedSet.has(key)) {
-          return;
+          return null;
         }
         if (collectedSet) {
           collectedSet.add(key);
         }
 
         const material = MATERIALS[cell.type];
+        let gainedResource = null;
         if (material && material.resource && state.resources[material.resource] !== undefined) {
           state.resources[material.resource] += 1;
+          gainedResource = material.resource;
+          flashResource(material.resource);
         }
         state.score += material ? material.score : 0;
         addParticles(x, y, material ? material.light : "#ffffff", 5);
+        return gainedResource;
       }
 
       function blastArea(centerX, centerY, radius, collectedSet) {
@@ -1147,10 +1301,11 @@
         if (targetY >= ROWS || !state.board[targetY][x]) {
           return false;
         }
-        collectCell(state.board[targetY][x], x, targetY, null);
+        const gained = collectCell(state.board[targetY][x], x, targetY, null);
         state.board[targetY][x] = null;
         settleColumn(x);
-        setMessage("Block mined.");
+        const gainText = gained ? ` Backpack +1 ${resourceLabel(gained)}.` : "";
+        setMessage(`Block mined.${gainText}`);
         return true;
       }
 
@@ -1186,9 +1341,12 @@
         if (!found) {
           return false;
         }
+        const beforeResources = snapshotResources();
         blastArea(x, y, 1, collected);
         settleAllColumns();
-        setMessage("TNT blast opened the quarry.");
+        const gains = describeResourceGains(beforeResources);
+        const backpackText = gains ? ` Backpack ${gains}.` : "";
+        setMessage(`TNT blast opened the quarry.${backpackText}`);
         return true;
       }
 
@@ -1273,9 +1431,24 @@
           if (!button) {
             return;
           }
+          const ready = hasResources(TOOLS[name].cost);
+          const costText = costTexts[name];
+          if (costText) {
+            costText.textContent = ready
+              ? `Ready · ${formatCost(TOOLS[name].cost)}`
+              : `Need ${formatMissingCost(TOOLS[name].cost)}`;
+          }
+          button.setAttribute("aria-label", `${TOOLS[name].label}: ${costText ? costText.textContent : formatCost(TOOLS[name].cost)}`);
+          button.classList.toggle("is-ready", ready && !state.paused && !state.gameOver);
           button.classList.toggle("is-active", state.activeTool === name);
-          button.disabled = state.gameOver || state.paused || !hasResources(TOOLS[name].cost);
+          button.disabled = state.gameOver || state.paused || !ready;
         });
+
+        if (craftHint) {
+          craftHint.textContent = state.activeTool
+            ? `${TOOLS[state.activeTool].label} targeting`
+            : "backpack -> tools";
+        }
 
         pauseButton.textContent = state.paused ? "▶" : "II";
       }
@@ -1324,6 +1497,9 @@
         const width = canvas.width;
         const height = canvas.height;
         const cellSize = Math.min(width / COLS, height / ROWS);
+        if (cellSize < 4) {
+          return;
+        }
         const offsetX = (width - cellSize * COLS) / 2;
         const offsetY = (height - cellSize * ROWS) / 2;
         const shakeX = state.shake > 0 ? (Math.random() - 0.5) * 5 : 0;
@@ -1411,8 +1587,6 @@
         while (canPlace(state.current.matrix, state.current.x, ghostY + 1)) {
           ghostY += 1;
         }
-        targetCtx.save();
-        targetCtx.globalAlpha = 0.23;
         state.current.matrix.forEach((row, rowIndex) => {
           row.forEach((cell, colIndex) => {
             if (!cell) {
@@ -1421,10 +1595,33 @@
             const x = state.current.x + colIndex;
             const y = ghostY + rowIndex;
             if (y >= 0) {
-              drawBlock(targetCtx, x, y, cell.type, cellSize, 0.65);
+              drawGhostBlock(targetCtx, x, y, cell.type, cellSize);
             }
           });
         });
+      }
+
+      function drawGhostBlock(targetCtx, x, y, type, cellSize) {
+        const material = MATERIALS[type] || MATERIALS.dirt;
+        const px = x * cellSize;
+        const py = y * cellSize;
+        const pad = Math.max(3, cellSize * 0.14);
+        const size = cellSize - pad * 2;
+
+        targetCtx.save();
+        targetCtx.fillStyle = hexWithAlpha(material.light, 0.08);
+        targetCtx.strokeStyle = "rgba(233, 244, 239, 0.34)";
+        targetCtx.lineWidth = Math.max(1, cellSize * 0.035);
+        targetCtx.setLineDash([cellSize * 0.18, cellSize * 0.12]);
+        roundRect(targetCtx, px + pad, py + pad, size, size, Math.max(3, cellSize * 0.10));
+        targetCtx.fill();
+        targetCtx.stroke();
+        targetCtx.setLineDash([]);
+        targetCtx.strokeStyle = hexWithAlpha(material.light, 0.28);
+        targetCtx.beginPath();
+        targetCtx.moveTo(px + pad, py + cellSize - pad);
+        targetCtx.lineTo(px + cellSize - pad, py + cellSize - pad);
+        targetCtx.stroke();
         targetCtx.restore();
       }
 
@@ -1591,7 +1788,11 @@
       }
 
       function roundRect(targetCtx, x, y, width, height, radius) {
-        const r = Math.min(radius, width / 2, height / 2);
+        if (width <= 0 || height <= 0) {
+          targetCtx.beginPath();
+          return;
+        }
+        const r = Math.max(0, Math.min(radius, width / 2, height / 2));
         targetCtx.beginPath();
         targetCtx.moveTo(x + r, y);
         targetCtx.arcTo(x + width, y, x + width, y + height, r);
