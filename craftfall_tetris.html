@@ -388,60 +388,217 @@
     }
 
     @media (max-width: 840px) {
+      html,
       body {
-        padding: 10px;
+        height: 100%;
       }
 
+      body {
+        align-items: start;
+        padding: 8px;
+        overflow-y: hidden;
+      }
+
+      /*
+        スマホでは「下へスクロールして道具を使う」流れがプレイを止めてしまいます。
+        そこで game-area を display: contents にして、盤面・情報・操作を1つの縦レイアウトとして並べ替えます。
+      */
       .app {
+        width: 100%;
+        height: calc(100svh - 16px);
+        min-height: 0;
         grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+        gap: 6px;
+        align-content: start;
       }
 
-      .board-frame {
+      .game-area {
+        display: contents;
+      }
+
+      .top-strip,
+      .board-frame,
+      .panel,
+      .mobile-controls {
         width: min(96vw, 410px);
-        width: min(96vw, 410px, calc((100svh - 190px) / 2));
         justify-self: center;
       }
 
-      .stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @supports (height: 100dvh) {
-      @media (max-width: 840px) {
-        .board-frame {
-          width: min(96vw, 410px, calc((100dvh - 190px) / 2));
-        }
-      }
-    }
-
-    @media (max-width: 460px) {
       .top-strip {
-        grid-template-columns: 1fr;
+        order: 1;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
       }
 
-      .board-frame {
-        width: min(96vw, 360px);
-        width: min(96vw, calc((100svh - 228px) / 2));
+      .brand h1 {
+        font-size: 1rem;
+      }
+
+      .brand p {
+        margin-top: 2px;
+        font-size: 0.7rem;
       }
 
       .quick-actions {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-auto-flow: row;
+        grid-auto-flow: column;
+        gap: 6px;
       }
 
       .icon-button {
-        width: auto;
+        width: 38px;
+        min-height: 38px;
+        font-size: 0.88rem;
       }
 
-      .preview-row,
-      .tool-grid,
+      .board-frame {
+        order: 2;
+        width: min(96vw, 410px, max(178px, calc((100svh - 286px) / 2)));
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+      }
+
+      .panel {
+        order: 3;
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        grid-template-areas:
+          "stats stats"
+          "inventory crafting"
+          "message message";
+        gap: 6px;
+      }
+
+      .stats {
+        grid-area: stats;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .stat {
+        min-height: 34px;
+        padding: 5px 6px;
+      }
+
+      .stat span,
+      .section-title,
+      .cost {
+        font-size: 0.58rem;
+      }
+
+      .stat strong {
+        margin-top: 2px;
+        font-size: 0.86rem;
+      }
+
+      .preview-row {
+        display: none;
+      }
+
+      .inventory {
+        grid-area: inventory;
+      }
+
+      .crafting {
+        grid-area: crafting;
+      }
+
+      .inventory,
+      .crafting {
+        padding: 6px;
+        gap: 5px;
+      }
+
+      .section-header {
+        min-height: 14px;
+        align-items: center;
+      }
+
+      .section-hint {
+        display: none;
+      }
+
       .resource-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .resource {
+        grid-template-columns: 12px minmax(0, 1fr);
+        gap: 4px;
+        min-height: 27px;
+        padding: 4px;
+        border-radius: 6px;
+      }
+
+      .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+      }
+
+      .resource strong {
+        display: inline;
+        margin-right: 3px;
+        font-size: 0.76rem;
+      }
+
+      .resource span {
+        display: inline;
+        font-size: 0.56rem;
+      }
+
+      .resource em {
+        display: none;
+      }
+
+      .tool-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .tool-button {
+        min-height: 58px;
+        padding: 4px 3px;
+        gap: 1px;
+      }
+
+      .tool-mark {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+      }
+
+      .tool-name {
+        font-size: 0.6rem;
+      }
+
+      .cost {
+        min-height: 21px;
+        line-height: 1.05;
+        overflow: hidden;
+      }
+
+      .message-box {
+        grid-area: message;
+        min-height: 28px;
+        padding: 5px 7px;
+        font-size: 0.68rem;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .mobile-controls {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        order: 4;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 5px;
+      }
+
+      .mobile-controls button {
+        min-height: 42px;
+        font-size: 0.74rem;
       }
 
       .mobile-controls .wide {
@@ -450,9 +607,116 @@
     }
 
     @supports (height: 100dvh) {
-      @media (max-width: 460px) {
+      @media (max-width: 840px) {
+        .app {
+          height: calc(100dvh - 16px);
+        }
+
         .board-frame {
-          width: min(96vw, calc((100dvh - 228px) / 2));
+          width: min(96vw, 410px, max(178px, calc((100dvh - 286px) / 2)));
+        }
+      }
+    }
+
+    @media (max-width: 460px) {
+      body {
+        padding: 6px;
+      }
+
+      .app {
+        height: calc(100svh - 12px);
+        gap: 5px;
+      }
+
+      .top-strip,
+      .panel,
+      .mobile-controls {
+        width: min(96vw, 380px);
+      }
+
+      .board-frame {
+        width: min(96vw, 380px, max(168px, calc((100svh - 276px) / 2)));
+      }
+
+      .brand h1 {
+        font-size: 0.92rem;
+      }
+
+      .brand p {
+        font-size: 0.64rem;
+      }
+
+      .icon-button {
+        width: 34px;
+        min-height: 34px;
+        font-size: 0.82rem;
+      }
+
+      .panel {
+        grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+        gap: 5px;
+      }
+
+      .stat {
+        min-height: 29px;
+        padding: 4px 5px;
+      }
+
+      .stat strong {
+        font-size: 0.76rem;
+      }
+
+      .inventory,
+      .crafting {
+        padding: 5px;
+      }
+
+      .resource {
+        grid-template-columns: 10px minmax(0, 1fr);
+        padding: 3px;
+      }
+
+      .swatch {
+        width: 10px;
+        height: 10px;
+      }
+
+      .resource strong {
+        font-size: 0.68rem;
+      }
+
+      .resource span {
+        font-size: 0.5rem;
+      }
+
+      .tool-button {
+        min-height: 53px;
+      }
+
+      .cost {
+        min-height: 20px;
+        font-size: 0.49rem;
+      }
+
+      .message-box {
+        min-height: 24px;
+        font-size: 0.62rem;
+      }
+
+      .mobile-controls button {
+        min-height: 38px;
+        font-size: 0.68rem;
+      }
+    }
+
+    @supports (height: 100dvh) {
+      @media (max-width: 460px) {
+        .app {
+          height: calc(100dvh - 12px);
+        }
+
+        .board-frame {
+          width: min(96vw, 380px, max(168px, calc((100dvh - 276px) / 2)));
         }
       }
     }
@@ -1997,6 +2261,10 @@
       function setupControls() {
         document.addEventListener("keydown", handleKeyDown);
         window.addEventListener("resize", resizeCanvases);
+        if (window.visualViewport) {
+          // スマホのアドレスバーが縮んだ時も、盤面サイズを現在の表示領域に合わせ直します。
+          window.visualViewport.addEventListener("resize", resizeCanvases);
+        }
         if (canvas) {
           canvas.addEventListener("pointerdown", handleBoardPointer);
         }
