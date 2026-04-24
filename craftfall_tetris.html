@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Craftfall Blocks</title>
+  <style>
+    :root {
+      --bg: #101419;
+      --panel: #171d24;
+      --panel-2: #202933;
+      --line: #303b47;
+      --text: #edf4ee;
+      --muted: #9daeb4;
+      --good: #70c96f;
+      --warn: #e2b84d;
+      --danger: #e15f4f;
+      --water: #4da1ff;
+      --stone: #94a0aa;
+      --wood: #c9904e;
+      --ore: #4dd4d0;
+      --radius: 8px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        linear-gradient(180deg, rgba(40, 57, 70, 0.45), rgba(16, 20, 25, 0.92)),
+        radial-gradient(circle at 18% 18%, rgba(77, 161, 255, 0.18), transparent 34%),
+        radial-gradient(circle at 82% 8%, rgba(112, 201, 111, 0.14), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #202933;
+      color: var(--text);
+      border-radius: var(--radius);
+      font: inherit;
+      min-height: 44px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.08s ease, border-color 0.14s ease, background 0.14s ease;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: #68b7ff;
+      outline: none;
+    }
+
+    button:active,
+    button.is-pressed {
+      transform: translateY(1px) scale(0.99);
+      background: #2a3642;
+    }
+
+    button:disabled {
+      color: #66727a;
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      display: grid;
+      grid-template-columns: minmax(280px, 440px) minmax(280px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .game-area {
+      display: grid;
+      gap: 10px;
+    }
+
+    .board-frame {
+      position: relative;
+      width: min(440px, 100%);
+      aspect-ratio: 10 / 20;
+      border: 1px solid #3b4957;
+      border-radius: var(--radius);
+      background: #0b0f14;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-auto-flow: column;
+      gap: 8px;
+    }
+
+    .icon-button {
+      width: 46px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat,
+    .preview-box,
+    .inventory,
+    .crafting,
+    .message-box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(23, 29, 36, 0.94);
+    }
+
+    .stat {
+      padding: 10px;
+      min-height: 66px;
+    }
+
+    .stat span,
+    .section-title,
+    .cost {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.2;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.18rem;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .preview-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .preview-box {
+      padding: 10px;
+    }
+
+    .preview-box canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      margin-top: 8px;
+      border-radius: 6px;
+      background: #101821;
+    }
+
+    .inventory,
+    .crafting {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .resource {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 7px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid #2c3742;
+      border-radius: 7px;
+      background: #111820;
+      min-width: 0;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+    }
+
+    .resource strong {
+      display: block;
+      font-size: 0.95rem;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .resource span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tool-button {
+      display: grid;
+      gap: 5px;
+      justify-items: center;
+      align-content: center;
+      padding: 9px 6px;
+      min-height: 86px;
+    }
+
+    .tool-button.is-active {
+      border-color: #80d487;
+      background: #1d3327;
+      box-shadow: inset 0 0 0 1px rgba(128, 212, 135, 0.35);
+    }
+
+    .tool-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #081117;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .tool-name {
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.15;
+      text-align: center;
+    }
+
+    .cost {
+      text-align: center;
+      min-height: 28px;
+    }
+
+    .message-box {
+      min-height: 64px;
+      padding: 12px;
+      color: #d9e8df;
+      line-height: 1.45;
+    }
+
+    .mobile-controls {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mobile-controls button {
+      min-width: 0;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 0;
+    }
+
+    .mobile-controls .wide {
+      grid-column: span 2;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 840px) {
+      body {
+        padding: 10px;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .board-frame {
+        width: min(96vw, 410px);
+        justify-self: center;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 460px) {
+      .top-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-flow: row;
+      }
+
+      .icon-button {
+        width: auto;
+      }
+
+      .preview-row,
+      .tool-grid,
+      .resource-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mobile-controls {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .mobile-controls .wide {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="Craftfall Blocks">
+    <section class="game-area">
+      <div class="top-strip">
+        <div class="brand">
+          <h1>Craftfall Blocks</h1>
+          <p id="modeText">深度 0m / Overworld</p>
+        </div>
+        <div class="quick-actions">
+          <button id="pauseButton" class="icon-button" type="button" aria-label="一時停止" title="Pause">II</button>
+          <button id="restartButton" class="icon-button" type="button" aria-label="リスタート" title="Restart">R</button>
+        </div>
+      </div>
+
+      <div class="board-frame">
+        <canvas id="gameCanvas" width="400" height="800" aria-label="ゲーム盤面"></canvas>
+      </div>
+
+      <div class="mobile-controls" aria-label="タッチ操作">
+        <button type="button" data-action="left" aria-label="左へ移動" title="Left">&lt;</button>
+        <button type="button" data-action="rotate" aria-label="回転" title="Rotate">ROT</button>
+        <button type="button" data-action="right" aria-label="右へ移動" title="Right">&gt;</button>
+        <button type="button" data-action="down" aria-label="下へ移動" title="Down">v</button>
+        <button class="wide" type="button" data-action="drop" aria-label="一気に落とす" title="Drop">DROP</button>
+        <button type="button" data-action="hold" aria-label="ホールド" title="Hold">HOLD</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <section class="stats" aria-label="スコア">
+        <div class="stat"><span>Score</span><strong id="scoreText">0</strong></div>
+        <div class="stat"><span>Layer</span><strong id="linesText">0</strong></div>
+        <div class="stat"><span>Depth</span><strong id="levelText">1</strong></div>
+        <div class="stat"><span>Best</span><strong id="bestText">0</strong></div>
+      </section>
+
+      <section class="preview-row">
+        <div class="preview-box">
+          <div class="section-title">NEXT</div>
+          <canvas id="nextCanvas" width="160" height="160" aria-label="次のピース"></canvas>
+        </div>
+        <div class="preview-box">
+          <div class="section-title">HOLD</div>
+          <canvas id="holdCanvas" width="160" height="160" aria-label="ホールド中のピース"></canvas>
+        </div>
+      </section>
+
+      <section class="inventory">
+        <div class="section-title">INVENTORY</div>
+        <div class="resource-grid">
+          <div class="resource">
+            <i class="swatch" style="background:#8b5a34"></i>
+            <div><strong id="dirtCount">0</strong><span>Dirt</span></div>
+          </div>
+          <div class="resource">
+            <i class="swatch" style="background:#c9904e"></i>
+            <div><strong id="woodCount">0</strong><span>Wood</span></div>
+          </div>
+          <div class="resource">
+            <i class="swatch" style="background:#94a0aa"></i>
+            <div><strong id="stoneCount">0</strong><span>Stone</span></div>
+          </div>
+          <div class="resource">
+            <i class="swatch" style="background:#4dd4d0"></i>
+            <div><strong id="oreCount">0</strong><span>Ore</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="crafting">
+        <div class="section-title">CRAFT</div>
+        <div class="tool-grid">
+          <button id="toolPickaxe" class="tool-button" type="button" data-tool="pickaxe" aria-label="Pickaxe">
+            <span class="tool-mark" style="background:var(--stone)">P</span>
+            <span class="tool-name">Pickaxe</span>
+            <span class="cost">Stone 3</span>
+          </button>
+          <button id="toolScaffold" class="tool-button" type="button" data-tool="scaffold" aria-label="Scaffold">
+            <span class="tool-mark" style="background:var(--wood)">S</span>
+            <span class="tool-name">Scaffold</span>
+            <span class="cost">Wood 2 / Dirt 2</span>
+          </button>
+          <button id="toolTnt" class="tool-button" type="button" data-tool="tnt" aria-label="TNT">
+            <span class="tool-mark" style="background:var(--danger)">T</span>
+            <span class="tool-name">TNT</span>
+            <span class="cost">Ore 2 / Stone 1</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="messageText" class="message-box" role="status" aria-live="polite">
+        Overworld quarry opened.
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /*
+        Craftfall Blocks
+        ----------------
+        このゲームは「落下中のピース」と「固定された盤面」を分けて管理します。
+        Tetris と同じ考え方ですが、固定されたブロックには素材タイプを持たせています。
+        素材タイプを見て、採掘・足場・TNT・水と溶岩の反応を処理します。
+      */
+
+      const COLS = 10;
+      const ROWS = 20;
+      const BASE_DROP_MS = 820;
+      const STORAGE_KEY = "craftfallBlocksBestScore";
+
+      const canvas = document.getElementById("gameCanvas");
+      const nextCanvas = document.getElementById("nextCanvas");
+      const holdCanvas = document.getElementById("holdCanvas");
+      const ctx = canvas ? canvas.getContext("2d") : null;
+      const nextCtx = nextCanvas ? nextCanvas.getContext("2d") : null;
+      const holdCtx = holdCanvas ? holdCanvas.getContext("2d") : null;
+
+      const scoreText = document.getElementById("scoreText");
+      const linesText = document.getElementById("linesText");
+      const levelText = document.getElementById("levelText");
+      const bestText = document.getElementById("bestText");
+      const modeText = document.getElementById("modeText");
+      const messageText = document.getElementById("messageText");
+      const pauseButton = document.getElementById("pauseButton");
+      const restartButton = document.getElementById("restartButton");
+
+      const resourceTexts = {
+        dirt: document.getElementById("dirtCount"),
+        wood: document.getElementById("woodCount"),
+        stone: document.getElementById("stoneCount"),
+        ore: document.getElementById("oreCount")
+      };
+
+      const toolButtons = {
+        pickaxe: document.getElementById("toolPickaxe"),
+        scaffold: document.getElementById("toolScaffold"),
+        tnt: document.getElementById("toolTnt")
+      };
+
+      const MATERIALS = {
+        dirt: {
+          label: "Dirt",
+          base: "#8b5a34",
+          light: "#b77744",
+          dark: "#4c3120",
+          resource: "dirt",
+          score: 3
+        },
+        grass: {
+          label: "Grass",
+          base: "#4f9a48",
+          light: "#8ed06e",
+          dark: "#31572e",
+          resource: "dirt",
+          score: 4
+        },
+        wood: {
+          label: "Wood",
+          base: "#b87a3d",
+          light: "#e2b36d",
+          dark: "#6b3f22",
+          resource: "wood",
+          score: 8
+        },
+        stone: {
+          label: "Stone",
+          base: "#7d8790",
+          light: "#b8c2ca",
+          dark: "#48515a",
+          resource: "stone",
+          score: 10
+        },
+        ore: {
+          label: "Ore",
+          base: "#348f9e",
+          light: "#62eee8",
+          dark: "#1d4e5a",
+          resource: "ore",
+          score: 26
+        },
+        water: {
+          label: "Water",
+          base: "#2f75d6",
+          light: "#75c8ff",
+          dark: "#1d376b",
+          resource: null,
+          score: 7
+        },
+        lava: {
+          label: "Lava",
+          base: "#e35b2e",
+          light: "#ffd05c",
+          dark: "#7a201e",
+          resource: null,
+          score: 18
+        },
+        obsidian: {
+          label: "Obsidian",
+          base: "#332a57",
+          light: "#7d6fb4",
+          dark: "#171127",
+          resource: "stone",
+          score: 24
+        },
+        scaffold: {
+          label: "Scaffold",
+          base: "#c9904e",
+          light: "#efd08c",
+          dark: "#654727",
+          resource: "wood",
+          score: 5
+        },
+        tnt: {
+          label: "TNT",
+          base: "#d94135",
+          light: "#ff9582",
+          dark: "#721b21",
+          resource: "ore",
+          score: 34
+        }
+      };
+
+      const TOOLS = {
+        pickaxe: {
+          label: "Pickaxe",
+          cost: { stone: 3 }
+        },
+        scaffold: {
+          label: "Scaffold",
+          cost: { wood: 2, dirt: 2 }
+        },
+        tnt: {
+          label: "TNT",
+          cost: { ore: 2, stone: 1 }
+        }
+      };
+
+      const SHAPES = [
+        [[1, 1, 1, 1]],
+        [[1, 1], [1, 1]],
+        [[0, 1, 0], [1, 1, 1]],
+        [[1, 0, 0], [1, 1, 1]],
+        [[0, 0, 1], [1, 1, 1]],
+        [[0, 1, 1], [1, 1, 0]],
+        [[1, 1, 0], [0, 1, 1]]
+      ];
+
+      const state = {
+        board: makeBoard(),
+        current: null,
+        next: null,
+        hold: null,
+        holdUsed: false,
+        score: 0,
+        lines: 0,
+        level: 1,
+        best: readBestScore(),
+        resources: { dirt: 0, wood: 0, stone: 0, ore: 0 },
+        activeTool: null,
+        cursor: { x: 4, y: 16 },
+        paused: false,
+        gameOver: false,
+        lastTime: 0,
+        dropTimer: 0,
+        particles: [],
+        shake: 0,
+        combo: 0,
+        message: "Overworld quarry opened."
+      };
+
+      /*
+        盤面は「20行 x 10列」の二次元配列です。
+        空きマスは null、ブロックがあるマスは { type: "stone" } のようなオブジェクトです。
+      */
+      function makeBoard() {
+        return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+      }
+
+      function makeCell(type) {
+        return { type };
+      }
+
+      function cloneCell(cell) {
+        return cell ? { type: cell.type } : null;
+      }
+
+      function cloneMatrix(matrix) {
+        return matrix.map(row => row.map(cloneCell));
+      }
+
+      function inBounds(x, y) {
+        return x >= 0 && x < COLS && y >= 0 && y < ROWS;
+      }
+
+      function readBestScore() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          const value = Number.parseInt(raw || "0", 10);
+          return Number.isFinite(value) ? value : 0;
+        } catch (error) {
+          return 0;
+        }
+      }
+
+      function saveBestScore() {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, String(state.best));
+        } catch (error) {
+          // ブラウザ設定で保存できない場合でも、ゲーム自体は続けられるようにします。
+        }
+      }
+
+      function chooseMaterial() {
+        const level = state.level;
+        const pool = [
+          ["dirt", 24],
+          ["grass", 12],
+          ["stone", 18],
+          ["wood", 12],
+          ["ore", level >= 2 ? 7 : 3],
+          ["water", level >= 3 ? 5 : 1],
+          ["lava", level >= 4 ? 4 : 0],
+          ["tnt", level >= 5 ? 2 : 0]
+        ];
+        const total = pool.reduce((sum, item) => sum + item[1], 0);
+        let roll = Math.random() * total;
+        for (const [type, weight] of pool) {
+          roll -= weight;
+          if (roll <= 0) {
+            return type;
+          }
+        }
+        return "dirt";
+      }
+
+      function createPiece() {
+        const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        const matrix = shape.map(row => row.map(value => value ? makeCell(chooseMaterial()) : null));
+        return {
+          matrix,
+          x: Math.floor(COLS / 2) - Math.ceil(matrix[0].length / 2),
+          y: 0
+        };
+      }
+
+      function resetPiecePosition(piece) {
+        piece.x = Math.floor(COLS / 2) - Math.ceil(piece.matrix[0].length / 2);
+        piece.y = 0;
+      }
+
+      function startGame() {
+        state.board = makeBoard();
+        state.current = createPiece();
+        state.next = createPiece();
+        state.hold = null;
+        state.holdUsed = false;
+        state.score = 0;
+        state.lines = 0;
+        state.level = 1;
+        state.resources = { dirt: 0, wood: 0, stone: 0, ore: 0 };
+        state.activeTool = null;
+        state.cursor = { x: 4, y: 16 };
+        state.paused = false;
+        state.gameOver = false;
+        state.dropTimer = 0;
+        state.particles = [];
+        state.shake = 0;
+        state.combo = 0;
+        setMessage("Overworld quarry opened.");
+        updateUi();
+        draw();
+      }
+
+      function setMessage(text) {
+        state.message = text;
+        if (messageText) {
+          messageText.textContent = text;
+        }
+      }
+
+      function dropInterval() {
+        return Math.max(130, BASE_DROP_MS - (state.level - 1) * 58);
+      }
+
+      function canPlace(matrix, x, y) {
+        for (let row = 0; row < matrix.length; row += 1) {
+          for (let col = 0; col < matrix[row].length; col += 1) {
+            if (!matrix[row][col]) {
+              continue;
+            }
+            const boardX = x + col;
+            const boardY = y + row;
+            if (boardX < 0 || boardX >= COLS || boardY >= ROWS) {
+              return false;
+            }
+            if (boardY >= 0 && state.board[boardY][boardX]) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      function movePiece(dx, dy) {
+        if (!state.current || state.paused || state.gameOver || state.activeTool) {
+          return false;
+        }
+        if (canPlace(state.current.matrix, state.current.x + dx, state.current.y + dy)) {
+          state.current.x += dx;
+          state.current.y += dy;
+          return true;
+        }
+        return false;
+      }
+
+      function softDrop() {
+        if (movePiece(0, 1)) {
+          state.score += 1;
+        } else {
+          lockPiece();
+        }
+        updateUi();
+      }
+
+      function hardDrop() {
+        if (!state.current || state.paused || state.gameOver || state.activeTool) {
+          return;
+        }
+        let distance = 0;
+        while (canPlace(state.current.matrix, state.current.x, state.current.y + 1)) {
+          state.current.y += 1;
+          distance += 1;
+        }
+        state.score += distance * 2;
+        lockPiece();
+        updateUi();
+      }
+
+      function rotateMatrix(matrix) {
+        const height = matrix.length;
+        const width = matrix[0].length;
+        const rotated = Array.from({ length: width }, () => Array(height).fill(null));
+        for (let y = 0; y < height; y += 1) {
+          for (let x = 0; x < width; x += 1) {
+            rotated[x][height - 1 - y] = cloneCell(matrix[y][x]);
+          }
+        }
+        return rotated;
+      }
+
+      function rotatePiece() {
+        if (!state.current || state.paused || state.gameOver || state.activeTool) {
+          return;
+        }
+        const rotated = rotateMatrix(state.current.matrix);
+        const kicks = [0, -1, 1, -2, 2];
+        for (const offset of kicks) {
+          if (canPlace(rotated, state.current.x + offset, state.current.y)) {
+            state.current.matrix = rotated;
+            state.current.x += offset;
+            return;
+          }
+        }
+      }
+
+      function holdPiece() {
+        if (!state.current || state.holdUsed || state.paused || state.gameOver || state.activeTool) {
+          return;
+        }
+        const stored = {
+          matrix: cloneMatrix(state.current.matrix),
+          x: 0,
+          y: 0
+        };
+        if (!state.hold) {
+          state.hold = stored;
+          spawnNextPiece();
+        } else {
+          const swap = state.hold;
+          state.hold = stored;
+          state.current = {
+            matrix: cloneMatrix(swap.matrix),
+            x: 0,
+            y: 0
+          };
+          resetPiecePosition(state.current);
+          if (!canPlace(state.current.matrix, state.current.x, state.current.y)) {
+            endGame();
+          }
+        }
+        state.holdUsed = true;
+        updateUi();
+      }
+
+      function spawnNextPiece() {
+        state.current = state.next;
+        resetPiecePosition(state.current);
+        state.next = createPiece();
+        state.holdUsed = false;
+        if (!canPlace(state.current.matrix, state.current.x, state.current.y)) {
+          endGame();
+        }
+      }
+
+      function lockPiece() {
+        if (!state.current) {
+          return;
+        }
+        let blockedAboveTop = false;
+        state.current.matrix.forEach((row, rowIndex) => {
+          row.forEach((cell, colIndex) => {
+            if (!cell) {
+              return;
+            }
+            const x = state.current.x + colIndex;
+            const y = state.current.y + rowIndex;
+            if (y < 0) {
+              blockedAboveTop = true;
+              return;
+            }
+            if (inBounds(x, y)) {
+              state.board[y][x] = cloneCell(cell);
+              addParticles(x, y, MATERIALS[cell.type].light, 2);
+            }
+          });
+        });
+
+        if (blockedAboveTop) {
+          endGame();
+          return;
+        }
+
+        const reactionPoints = applyWorldReactions();
+        if (reactionPoints > 0) {
+          state.score += reactionPoints;
+          setMessage(`Water cooled lava: +${reactionPoints}`);
+        }
+
+        clearFullRows();
+        spawnNextPiece();
+      }
+
+      function applyWorldReactions() {
+        let points = 0;
+        const changes = [];
+        for (let y = 0; y < ROWS; y += 1) {
+          for (let x = 0; x < COLS; x += 1) {
+            const cell = state.board[y][x];
+            if (!cell || cell.type !== "lava") {
+              continue;
+            }
+            if (hasNeighborType(x, y, "water")) {
+              changes.push({ x, y });
+            }
+          }
+        }
+
+        changes.forEach(({ x, y }) => {
+          state.board[y][x] = makeCell("obsidian");
+          points += 18;
+          addParticles(x, y, MATERIALS.obsidian.light, 6);
+        });
+
+        settleLiquids();
+        return points;
+      }
+
+      function hasNeighborType(x, y, type) {
+        const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+        return dirs.some(([dx, dy]) => {
+          const nx = x + dx;
+          const ny = y + dy;
+          return inBounds(nx, ny) && state.board[ny][nx] && state.board[ny][nx].type === type;
+        });
+      }
+
+      function settleLiquids() {
+        for (let y = ROWS - 2; y >= 0; y -= 1) {
+          for (let x = 0; x < COLS; x += 1) {
+            const cell = state.board[y][x];
+            if (!cell || cell.type !== "water") {
+              continue;
+            }
+            let targetY = y;
+            while (targetY + 1 < ROWS && !state.board[targetY + 1][x]) {
+              targetY += 1;
+            }
+            if (targetY !== y) {
+              state.board[targetY][x] = cell;
+              state.board[y][x] = null;
+            }
+          }
+        }
+      }
+
+      function clearFullRows() {
+        const fullRows = [];
+        for (let y = 0; y < ROWS; y += 1) {
+          if (state.board[y].every(Boolean)) {
+            fullRows.push(y);
+          }
+        }
+
+        if (fullRows.length === 0) {
+          state.combo = 0;
+          return;
+        }
+
+        const blastCenters = [];
+        const collected = new Set();
+
+        fullRows.forEach(row => {
+          for (let x = 0; x < COLS; x += 1) {
+            const cell = state.board[row][x];
+            if (!cell) {
+              continue;
+            }
+            collectCell(cell, x, row, collected);
+            if (cell.type === "tnt") {
+              blastCenters.push({ x, y: row });
+            }
+          }
+        });
+
+        blastCenters.forEach(center => {
+          blastArea(center.x, center.y, 1, collected);
+        });
+
+        fullRows.sort((a, b) => b - a).forEach(row => {
+          state.board.splice(row, 1);
+          state.board.unshift(Array(COLS).fill(null));
+        });
+
+        state.combo += 1;
+        const lineScore = [0, 120, 320, 580, 920][fullRows.length] || fullRows.length * 260;
+        const comboBonus = (state.combo - 1) * 90;
+        const depthBonus = state.level * 18;
+        state.score += lineScore + comboBonus + depthBonus;
+        state.lines += fullRows.length;
+        state.level = Math.floor(state.lines / 7) + 1;
+
+        const label = fullRows.length === 1 ? "layer" : "layers";
+        setMessage(`${fullRows.length} ${label} mined: +${lineScore + comboBonus + depthBonus}`);
+        updateBest();
+        updateUi();
+      }
+
+      function collectCell(cell, x, y, collectedSet) {
+        const key = `${x},${y}`;
+        if (collectedSet && collectedSet.has(key)) {
+          return;
+        }
+        if (collectedSet) {
+          collectedSet.add(key);
+        }
+
+        const material = MATERIALS[cell.type];
+        if (material && material.resource && state.resources[material.resource] !== undefined) {
+          state.resources[material.resource] += 1;
+        }
+        state.score += material ? material.score : 0;
+        addParticles(x, y, material ? material.light : "#ffffff", 5);
+      }
+
+      function blastArea(centerX, centerY, radius, collectedSet) {
+        for (let y = centerY - radius; y <= centerY + radius; y += 1) {
+          for (let x = centerX - radius; x <= centerX + radius; x += 1) {
+            if (!inBounds(x, y) || !state.board[y][x]) {
+              continue;
+            }
+            collectCell(state.board[y][x], x, y, collectedSet);
+            state.board[y][x] = null;
+            addParticles(x, y, MATERIALS.tnt.light, 8);
+          }
+        }
+        state.score += 90;
+      }
+
+      function updateBest() {
+        if (state.score > state.best) {
+          state.best = state.score;
+          saveBestScore();
+        }
+      }
+
+      function hasResources(cost) {
+        return Object.entries(cost).every(([name, amount]) => state.resources[name] >= amount);
+      }
+
+      function spendResources(cost) {
+        if (!hasResources(cost)) {
+          return false;
+        }
+        Object.entries(cost).forEach(([name, amount]) => {
+          state.resources[name] -= amount;
+        });
+        return true;
+      }
+
+      function selectTool(toolName) {
+        if (state.gameOver || state.paused) {
+          return;
+        }
+        if (!TOOLS[toolName]) {
+          return;
+        }
+        if (!hasResources(TOOLS[toolName].cost)) {
+          state.shake = 12;
+          setMessage(`${TOOLS[toolName].label} needs more resources.`);
+          return;
+        }
+        state.activeTool = state.activeTool === toolName ? null : toolName;
+        if (state.current) {
+          state.cursor.x = clamp(state.current.x + 1, 0, COLS - 1);
+          state.cursor.y = clamp(Math.max(state.current.y + 8, 0), 0, ROWS - 1);
+        }
+        setMessage(state.activeTool ? `${TOOLS[toolName].label} armed.` : "Tool cancelled.");
+        updateUi();
+      }
+
+      function applyActiveTool(x, y) {
+        if (!state.activeTool || state.paused || state.gameOver) {
+          return;
+        }
+        const toolName = state.activeTool;
+        const tool = TOOLS[toolName];
+        const targetX = clamp(Math.floor(x), 0, COLS - 1);
+        const targetY = clamp(Math.floor(y), 0, ROWS - 1);
+        let changed = false;
+
+        if (toolName === "pickaxe") {
+          changed = usePickaxe(targetX, targetY);
+        } else if (toolName === "scaffold") {
+          changed = useScaffold(targetX, targetY);
+        } else if (toolName === "tnt") {
+          changed = useTnt(targetX, targetY);
+        }
+
+        if (!changed) {
+          state.shake = 8;
+          setMessage(`${tool.label} found no target.`);
+          return;
+        }
+
+        spendResources(tool.cost);
+        state.activeTool = null;
+        applyWorldReactions();
+        clearFullRows();
+        updateBest();
+        updateUi();
+      }
+
+      function usePickaxe(x, y) {
+        let targetY = y;
+        while (targetY < ROWS && !state.board[targetY][x]) {
+          targetY += 1;
+        }
+        if (targetY >= ROWS || !state.board[targetY][x]) {
+          return false;
+        }
+        collectCell(state.board[targetY][x], x, targetY, null);
+        state.board[targetY][x] = null;
+        settleColumn(x);
+        setMessage("Block mined.");
+        return true;
+      }
+
+      function useScaffold(x, y) {
+        let placed = 0;
+        const offsets = [0, -1, 1];
+        offsets.forEach(offset => {
+          const tx = x + offset;
+          if (inBounds(tx, y) && !state.board[y][tx]) {
+            state.board[y][tx] = makeCell("scaffold");
+            placed += 1;
+            addParticles(tx, y, MATERIALS.scaffold.light, 4);
+          }
+        });
+        if (placed === 0) {
+          return false;
+        }
+        state.score += placed * 12;
+        setMessage(`${placed} scaffold blocks placed.`);
+        return true;
+      }
+
+      function useTnt(x, y) {
+        const collected = new Set();
+        let found = false;
+        for (let ty = y - 1; ty <= y + 1; ty += 1) {
+          for (let tx = x - 1; tx <= x + 1; tx += 1) {
+            if (inBounds(tx, ty) && state.board[ty][tx]) {
+              found = true;
+            }
+          }
+        }
+        if (!found) {
+          return false;
+        }
+        blastArea(x, y, 1, collected);
+        settleAllColumns();
+        setMessage("TNT blast opened the quarry.");
+        return true;
+      }
+
+      function settleColumn(x) {
+        const cells = [];
+        for (let y = ROWS - 1; y >= 0; y -= 1) {
+          if (state.board[y][x]) {
+            cells.push(state.board[y][x]);
+            state.board[y][x] = null;
+          }
+        }
+        let writeY = ROWS - 1;
+        cells.forEach(cell => {
+          state.board[writeY][x] = cell;
+          writeY -= 1;
+        });
+      }
+
+      function settleAllColumns() {
+        for (let x = 0; x < COLS; x += 1) {
+          settleColumn(x);
+        }
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function togglePause() {
+        if (state.gameOver) {
+          return;
+        }
+        state.paused = !state.paused;
+        setMessage(state.paused ? "Paused." : "Back to the quarry.");
+        updateUi();
+      }
+
+      function endGame() {
+        state.gameOver = true;
+        state.activeTool = null;
+        updateBest();
+        setMessage("Mine collapsed. Restart opens a new quarry.");
+        updateUi();
+      }
+
+      function addParticles(cellX, cellY, color, count) {
+        for (let i = 0; i < count; i += 1) {
+          state.particles.push({
+            x: cellX + 0.5,
+            y: cellY + 0.5,
+            vx: (Math.random() - 0.5) * 0.08,
+            vy: -Math.random() * 0.08 - 0.02,
+            life: 520 + Math.random() * 320,
+            color
+          });
+        }
+      }
+
+      function updateParticles(delta) {
+        state.particles = state.particles.filter(particle => {
+          particle.life -= delta;
+          particle.x += particle.vx * delta * 0.06;
+          particle.y += particle.vy * delta * 0.06;
+          particle.vy += 0.00018 * delta;
+          return particle.life > 0;
+        });
+      }
+
+      function updateUi() {
+        updateBest();
+        scoreText.textContent = String(state.score);
+        linesText.textContent = String(state.lines);
+        levelText.textContent = String(state.level);
+        bestText.textContent = String(state.best);
+        modeText.textContent = `深度 ${state.lines * 4}m / ${biomeName()}`;
+
+        Object.entries(resourceTexts).forEach(([name, element]) => {
+          element.textContent = String(state.resources[name]);
+        });
+
+        Object.entries(toolButtons).forEach(([name, button]) => {
+          if (!button) {
+            return;
+          }
+          button.classList.toggle("is-active", state.activeTool === name);
+          button.disabled = state.gameOver || state.paused || !hasResources(TOOLS[name].cost);
+        });
+
+        pauseButton.textContent = state.paused ? "▶" : "II";
+      }
+
+      function biomeName() {
+        if (state.level >= 7) {
+          return "Nether Core";
+        }
+        if (state.level >= 5) {
+          return "Lava Cavern";
+        }
+        if (state.level >= 3) {
+          return "Wet Mine";
+        }
+        return "Overworld";
+      }
+
+      function loop(time) {
+        const delta = Math.min(40, time - state.lastTime || 16);
+        state.lastTime = time;
+
+        if (!state.paused && !state.gameOver && !state.activeTool) {
+          state.dropTimer += delta;
+          if (state.dropTimer >= dropInterval()) {
+            state.dropTimer = 0;
+            if (!movePiece(0, 1)) {
+              lockPiece();
+              updateUi();
+            }
+          }
+        }
+
+        if (state.shake > 0) {
+          state.shake -= 1;
+        }
+
+        updateParticles(delta);
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      function draw() {
+        if (!ctx) {
+          return;
+        }
+        const width = canvas.width;
+        const height = canvas.height;
+        const cellSize = Math.min(width / COLS, height / ROWS);
+        const offsetX = (width - cellSize * COLS) / 2;
+        const offsetY = (height - cellSize * ROWS) / 2;
+        const shakeX = state.shake > 0 ? (Math.random() - 0.5) * 5 : 0;
+
+        ctx.save();
+        ctx.clearRect(0, 0, width, height);
+        ctx.translate(offsetX + shakeX, offsetY);
+
+        drawBoardBackground(ctx, cellSize);
+        drawPlacedBlocks(ctx, cellSize);
+        drawGhostPiece(ctx, cellSize);
+        drawCurrentPiece(ctx, cellSize);
+        drawToolCursor(ctx, cellSize);
+        drawParticles(ctx, cellSize);
+        drawOverlay(ctx, cellSize);
+
+        ctx.restore();
+        drawPreview(nextCtx, nextCanvas, state.next);
+        drawPreview(holdCtx, holdCanvas, state.hold);
+      }
+
+      function drawBoardBackground(targetCtx, cellSize) {
+        targetCtx.fillStyle = "#0c1118";
+        targetCtx.fillRect(0, 0, COLS * cellSize, ROWS * cellSize);
+
+        for (let y = 0; y < ROWS; y += 1) {
+          for (let x = 0; x < COLS; x += 1) {
+            if ((x + y) % 2 === 0) {
+              targetCtx.fillStyle = "rgba(255,255,255,0.018)";
+              targetCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            }
+          }
+        }
+
+        targetCtx.strokeStyle = "rgba(128, 151, 166, 0.13)";
+        targetCtx.lineWidth = 1;
+        for (let x = 0; x <= COLS; x += 1) {
+          targetCtx.beginPath();
+          targetCtx.moveTo(x * cellSize, 0);
+          targetCtx.lineTo(x * cellSize, ROWS * cellSize);
+          targetCtx.stroke();
+        }
+        for (let y = 0; y <= ROWS; y += 1) {
+          targetCtx.beginPath();
+          targetCtx.moveTo(0, y * cellSize);
+          targetCtx.lineTo(COLS * cellSize, y * cellSize);
+          targetCtx.stroke();
+        }
+      }
+
+      function drawPlacedBlocks(targetCtx, cellSize) {
+        for (let y = 0; y < ROWS; y += 1) {
+          for (let x = 0; x < COLS; x += 1) {
+            const cell = state.board[y][x];
+            if (cell) {
+              drawBlock(targetCtx, x, y, cell.type, cellSize, 1);
+            }
+          }
+        }
+      }
+
+      function drawCurrentPiece(targetCtx, cellSize) {
+        if (!state.current) {
+          return;
+        }
+        state.current.matrix.forEach((row, rowIndex) => {
+          row.forEach((cell, colIndex) => {
+            if (!cell) {
+              return;
+            }
+            const x = state.current.x + colIndex;
+            const y = state.current.y + rowIndex;
+            if (y >= 0) {
+              drawBlock(targetCtx, x, y, cell.type, cellSize, 1);
+            }
+          });
+        });
+      }
+
+      function drawGhostPiece(targetCtx, cellSize) {
+        if (!state.current || state.activeTool) {
+          return;
+        }
+        let ghostY = state.current.y;
+        while (canPlace(state.current.matrix, state.current.x, ghostY + 1)) {
+          ghostY += 1;
+        }
+        targetCtx.save();
+        targetCtx.globalAlpha = 0.23;
+        state.current.matrix.forEach((row, rowIndex) => {
+          row.forEach((cell, colIndex) => {
+            if (!cell) {
+              return;
+            }
+            const x = state.current.x + colIndex;
+            const y = ghostY + rowIndex;
+            if (y >= 0) {
+              drawBlock(targetCtx, x, y, cell.type, cellSize, 0.65);
+            }
+          });
+        });
+        targetCtx.restore();
+      }
+
+      function drawToolCursor(targetCtx, cellSize) {
+        if (!state.activeTool) {
+          return;
+        }
+        const x = state.cursor.x;
+        const y = state.cursor.y;
+        targetCtx.save();
+        targetCtx.lineWidth = Math.max(2, cellSize * 0.06);
+        targetCtx.strokeStyle = state.activeTool === "tnt" ? MATERIALS.tnt.light : "#a9ffad";
+        targetCtx.fillStyle = "rgba(169, 255, 173, 0.10)";
+
+        if (state.activeTool === "tnt") {
+          targetCtx.strokeRect((x - 1) * cellSize + 2, (y - 1) * cellSize + 2, cellSize * 3 - 4, cellSize * 3 - 4);
+          targetCtx.fillRect((x - 1) * cellSize + 2, (y - 1) * cellSize + 2, cellSize * 3 - 4, cellSize * 3 - 4);
+        } else {
+          targetCtx.strokeRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
+          targetCtx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
+        }
+
+        targetCtx.restore();
+      }
+
+      function drawParticles(targetCtx, cellSize) {
+        targetCtx.save();
+        state.particles.forEach(particle => {
+          const alpha = clamp(particle.life / 720, 0, 1);
+          targetCtx.globalAlpha = alpha;
+          targetCtx.fillStyle = particle.color;
+          targetCtx.fillRect(
+            particle.x * cellSize - cellSize * 0.08,
+            particle.y * cellSize - cellSize * 0.08,
+            cellSize * 0.16,
+            cellSize * 0.16
+          );
+        });
+        targetCtx.restore();
+      }
+
+      function drawOverlay(targetCtx, cellSize) {
+        if (!state.paused && !state.gameOver) {
+          return;
+        }
+        targetCtx.save();
+        targetCtx.fillStyle = "rgba(4, 8, 12, 0.72)";
+        targetCtx.fillRect(0, 0, COLS * cellSize, ROWS * cellSize);
+        targetCtx.fillStyle = "#edf4ee";
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.font = `700 ${Math.floor(cellSize * 0.95)}px ui-sans-serif, system-ui`;
+        targetCtx.fillText(state.gameOver ? "GAME OVER" : "PAUSE", COLS * cellSize / 2, ROWS * cellSize * 0.45);
+        targetCtx.restore();
+      }
+
+      function drawBlock(targetCtx, x, y, type, cellSize, alpha) {
+        const material = MATERIALS[type] || MATERIALS.dirt;
+        const px = x * cellSize;
+        const py = y * cellSize;
+        const pad = Math.max(1, cellSize * 0.055);
+        const size = cellSize - pad * 2;
+
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha;
+        targetCtx.fillStyle = material.base;
+        roundRect(targetCtx, px + pad, py + pad, size, size, Math.max(3, cellSize * 0.12));
+        targetCtx.fill();
+
+        const gradient = targetCtx.createLinearGradient(px, py, px + cellSize, py + cellSize);
+        gradient.addColorStop(0, hexWithAlpha(material.light, 0.72));
+        gradient.addColorStop(0.48, hexWithAlpha(material.base, 0.28));
+        gradient.addColorStop(1, hexWithAlpha(material.dark, 0.62));
+        targetCtx.fillStyle = gradient;
+        roundRect(targetCtx, px + pad, py + pad, size, size, Math.max(3, cellSize * 0.12));
+        targetCtx.fill();
+
+        targetCtx.strokeStyle = "rgba(255,255,255,0.16)";
+        targetCtx.lineWidth = Math.max(1, cellSize * 0.04);
+        targetCtx.stroke();
+
+        drawMaterialTexture(targetCtx, px + pad, py + pad, size, type, material);
+        targetCtx.restore();
+      }
+
+      function drawMaterialTexture(targetCtx, x, y, size, type, material) {
+        const unit = size / 5;
+        targetCtx.save();
+        targetCtx.lineCap = "round";
+
+        if (type === "grass") {
+          targetCtx.fillStyle = material.light;
+          targetCtx.fillRect(x, y, size, unit * 1.15);
+          targetCtx.fillStyle = "rgba(52, 33, 20, 0.42)";
+          targetCtx.fillRect(x + unit * 0.7, y + unit * 1.55, unit * 0.7, unit * 0.7);
+          targetCtx.fillRect(x + unit * 3.2, y + unit * 2.3, unit * 0.7, unit * 0.8);
+        } else if (type === "dirt") {
+          targetCtx.fillStyle = "rgba(255, 226, 169, 0.28)";
+          targetCtx.fillRect(x + unit * 1.1, y + unit * 1.2, unit * 0.6, unit * 0.45);
+          targetCtx.fillRect(x + unit * 3.2, y + unit * 3.0, unit * 0.65, unit * 0.45);
+        } else if (type === "wood" || type === "scaffold") {
+          targetCtx.strokeStyle = "rgba(87, 49, 24, 0.5)";
+          targetCtx.lineWidth = Math.max(1, unit * 0.18);
+          for (let i = 1; i <= 3; i += 1) {
+            targetCtx.beginPath();
+            targetCtx.moveTo(x + unit * i, y + unit * 0.5);
+            targetCtx.lineTo(x + unit * i + unit * 0.2, y + size - unit * 0.5);
+            targetCtx.stroke();
+          }
+          if (type === "scaffold") {
+            targetCtx.strokeStyle = "rgba(255, 235, 173, 0.62)";
+            targetCtx.beginPath();
+            targetCtx.moveTo(x + unit * 0.9, y + unit * 0.9);
+            targetCtx.lineTo(x + size - unit * 0.9, y + size - unit * 0.9);
+            targetCtx.moveTo(x + size - unit * 0.9, y + unit * 0.9);
+            targetCtx.lineTo(x + unit * 0.9, y + size - unit * 0.9);
+            targetCtx.stroke();
+          }
+        } else if (type === "stone" || type === "obsidian") {
+          targetCtx.strokeStyle = type === "obsidian" ? "rgba(157, 127, 232, 0.42)" : "rgba(255,255,255,0.28)";
+          targetCtx.lineWidth = Math.max(1, unit * 0.16);
+          targetCtx.beginPath();
+          targetCtx.moveTo(x + unit * 0.8, y + unit * 1.5);
+          targetCtx.lineTo(x + unit * 2.1, y + unit * 1.1);
+          targetCtx.lineTo(x + unit * 3.4, y + unit * 2.0);
+          targetCtx.moveTo(x + unit * 1.6, y + unit * 3.5);
+          targetCtx.lineTo(x + unit * 3.8, y + unit * 3.1);
+          targetCtx.stroke();
+        } else if (type === "ore") {
+          targetCtx.fillStyle = material.light;
+          targetCtx.fillRect(x + unit * 1.1, y + unit * 1.1, unit * 0.9, unit * 0.9);
+          targetCtx.fillRect(x + unit * 3.1, y + unit * 2.5, unit * 0.85, unit * 0.85);
+          targetCtx.fillStyle = "rgba(255,255,255,0.55)";
+          targetCtx.fillRect(x + unit * 1.25, y + unit * 1.2, unit * 0.25, unit * 0.25);
+        } else if (type === "water") {
+          targetCtx.strokeStyle = "rgba(210, 244, 255, 0.62)";
+          targetCtx.lineWidth = Math.max(1, unit * 0.22);
+          targetCtx.beginPath();
+          targetCtx.moveTo(x + unit * 0.6, y + unit * 2.0);
+          targetCtx.quadraticCurveTo(x + unit * 1.6, y + unit * 1.2, x + unit * 2.5, y + unit * 2.0);
+          targetCtx.quadraticCurveTo(x + unit * 3.4, y + unit * 2.8, x + unit * 4.4, y + unit * 2.0);
+          targetCtx.stroke();
+        } else if (type === "lava") {
+          targetCtx.strokeStyle = material.light;
+          targetCtx.lineWidth = Math.max(1, unit * 0.25);
+          targetCtx.beginPath();
+          targetCtx.moveTo(x + unit * 1.0, y + unit * 0.9);
+          targetCtx.lineTo(x + unit * 2.0, y + unit * 2.5);
+          targetCtx.lineTo(x + unit * 1.7, y + unit * 4.0);
+          targetCtx.moveTo(x + unit * 3.5, y + unit * 1.1);
+          targetCtx.lineTo(x + unit * 2.8, y + unit * 3.1);
+          targetCtx.stroke();
+        } else if (type === "tnt") {
+          targetCtx.fillStyle = "rgba(20, 16, 18, 0.75)";
+          targetCtx.fillRect(x, y + unit * 2.0, size, unit);
+          targetCtx.fillStyle = "#f8e8c9";
+          targetCtx.font = `700 ${Math.max(8, Math.floor(unit * 1.35))}px ui-sans-serif, system-ui`;
+          targetCtx.textAlign = "center";
+          targetCtx.textBaseline = "middle";
+          targetCtx.fillText("TNT", x + size / 2, y + unit * 2.52);
+        }
+
+        targetCtx.restore();
+      }
+
+      function roundRect(targetCtx, x, y, width, height, radius) {
+        const r = Math.min(radius, width / 2, height / 2);
+        targetCtx.beginPath();
+        targetCtx.moveTo(x + r, y);
+        targetCtx.arcTo(x + width, y, x + width, y + height, r);
+        targetCtx.arcTo(x + width, y + height, x, y + height, r);
+        targetCtx.arcTo(x, y + height, x, y, r);
+        targetCtx.arcTo(x, y, x + width, y, r);
+        targetCtx.closePath();
+      }
+
+      function hexWithAlpha(hex, alpha) {
+        const clean = hex.replace("#", "");
+        const r = Number.parseInt(clean.slice(0, 2), 16);
+        const g = Number.parseInt(clean.slice(2, 4), 16);
+        const b = Number.parseInt(clean.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+
+      function drawPreview(targetCtx, targetCanvas, piece) {
+        if (!targetCtx || !targetCanvas) {
+          return;
+        }
+        const size = targetCanvas.width;
+        targetCtx.clearRect(0, 0, size, size);
+        targetCtx.fillStyle = "#101821";
+        targetCtx.fillRect(0, 0, size, size);
+        if (!piece) {
+          return;
+        }
+
+        const matrix = piece.matrix;
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        const cellSize = Math.min(size / 5, size / 5);
+        const startX = (size - cols * cellSize) / 2;
+        const startY = (size - rows * cellSize) / 2;
+
+        targetCtx.save();
+        targetCtx.translate(startX, startY);
+        matrix.forEach((row, y) => {
+          row.forEach((cell, x) => {
+            if (cell) {
+              drawBlock(targetCtx, x, y, cell.type, cellSize, 1);
+            }
+          });
+        });
+        targetCtx.restore();
+      }
+
+      function resizeCanvases() {
+        if (!canvas) {
+          return;
+        }
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        canvas.width = Math.floor(rect.width * ratio);
+        canvas.height = Math.floor(rect.height * ratio);
+
+        [nextCanvas, holdCanvas].forEach(preview => {
+          if (!preview) {
+            return;
+          }
+          const previewRect = preview.getBoundingClientRect();
+          preview.width = Math.floor(previewRect.width * ratio);
+          preview.height = Math.floor(previewRect.height * ratio);
+        });
+        draw();
+      }
+
+      function handleKeyDown(event) {
+        const key = event.key.toLowerCase();
+        const handledKeys = [
+          "arrowleft", "arrowright", "arrowdown", "arrowup", " ",
+          "a", "d", "s", "w", "x", "z", "p", "escape", "enter", "r",
+          "1", "2", "3"
+        ];
+        if (handledKeys.includes(key)) {
+          event.preventDefault();
+        }
+
+        if (key === "r") {
+          startGame();
+          return;
+        }
+
+        if (state.gameOver) {
+          if (key === "enter" || key === " ") {
+            startGame();
+          }
+          return;
+        }
+
+        if (key === "p" || key === "escape" && !state.activeTool) {
+          togglePause();
+          return;
+        }
+
+        if (key === "1") {
+          selectTool("pickaxe");
+          return;
+        }
+        if (key === "2") {
+          selectTool("scaffold");
+          return;
+        }
+        if (key === "3") {
+          selectTool("tnt");
+          return;
+        }
+
+        if (state.activeTool) {
+          handleToolKey(key);
+          return;
+        }
+
+        if (key === "arrowleft" || key === "a") {
+          movePiece(-1, 0);
+        } else if (key === "arrowright" || key === "d") {
+          movePiece(1, 0);
+        } else if (key === "arrowdown" || key === "s") {
+          softDrop();
+        } else if (key === "arrowup" || key === "w" || key === "x") {
+          rotatePiece();
+        } else if (key === " ") {
+          hardDrop();
+        } else if (key === "z") {
+          holdPiece();
+        }
+        updateUi();
+      }
+
+      function handleToolKey(key) {
+        if (key === "escape") {
+          state.activeTool = null;
+          setMessage("Tool cancelled.");
+          updateUi();
+          return;
+        }
+        if (key === "arrowleft" || key === "a") {
+          state.cursor.x = clamp(state.cursor.x - 1, 0, COLS - 1);
+        } else if (key === "arrowright" || key === "d") {
+          state.cursor.x = clamp(state.cursor.x + 1, 0, COLS - 1);
+        } else if (key === "arrowup" || key === "w") {
+          state.cursor.y = clamp(state.cursor.y - 1, 0, ROWS - 1);
+        } else if (key === "arrowdown" || key === "s") {
+          state.cursor.y = clamp(state.cursor.y + 1, 0, ROWS - 1);
+        } else if (key === "enter" || key === " ") {
+          applyActiveTool(state.cursor.x, state.cursor.y);
+        }
+      }
+
+      function handleBoardPointer(event) {
+        if (!canvas || !state.activeTool) {
+          return;
+        }
+        event.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = COLS / rect.width;
+        const scaleY = ROWS / rect.height;
+        const x = clamp(Math.floor((event.clientX - rect.left) * scaleX), 0, COLS - 1);
+        const y = clamp(Math.floor((event.clientY - rect.top) * scaleY), 0, ROWS - 1);
+        state.cursor = { x, y };
+        applyActiveTool(x, y);
+      }
+
+      function runControlAction(action) {
+        if (action === "left") {
+          if (state.activeTool) {
+            handleToolKey("arrowleft");
+          } else {
+            movePiece(-1, 0);
+          }
+        } else if (action === "right") {
+          if (state.activeTool) {
+            handleToolKey("arrowright");
+          } else {
+            movePiece(1, 0);
+          }
+        } else if (action === "down") {
+          if (state.activeTool) {
+            handleToolKey("arrowdown");
+          } else {
+            softDrop();
+          }
+        } else if (action === "rotate") {
+          if (state.activeTool) {
+            handleToolKey("arrowup");
+          } else {
+            rotatePiece();
+          }
+        } else if (action === "drop") {
+          if (state.activeTool) {
+            applyActiveTool(state.cursor.x, state.cursor.y);
+          } else {
+            hardDrop();
+          }
+        } else if (action === "hold") {
+          holdPiece();
+        }
+        updateUi();
+      }
+
+      function setupControls() {
+        document.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("resize", resizeCanvases);
+        if (canvas) {
+          canvas.addEventListener("pointerdown", handleBoardPointer);
+        }
+
+        pauseButton.addEventListener("click", togglePause);
+        restartButton.addEventListener("click", startGame);
+
+        Object.entries(toolButtons).forEach(([name, button]) => {
+          button.addEventListener("click", () => selectTool(name));
+        });
+
+        document.querySelectorAll("[data-action]").forEach(button => {
+          let repeatId = 0;
+          const action = button.dataset.action;
+          const repeatable = action === "left" || action === "right" || action === "down";
+
+          const stopRepeat = () => {
+            button.classList.remove("is-pressed");
+            if (repeatId) {
+              window.clearInterval(repeatId);
+              repeatId = 0;
+            }
+          };
+
+          button.addEventListener("pointerdown", event => {
+            event.preventDefault();
+            button.setPointerCapture(event.pointerId);
+            button.classList.add("is-pressed");
+            runControlAction(action);
+            if (repeatable) {
+              repeatId = window.setInterval(() => runControlAction(action), 110);
+            }
+          });
+          button.addEventListener("pointerup", stopRepeat);
+          button.addEventListener("pointercancel", stopRepeat);
+          button.addEventListener("lostpointercapture", stopRepeat);
+        });
+      }
+
+      function boot() {
+        if (!ctx || !nextCtx || !holdCtx) {
+          document.body.innerHTML = "<p>Canvas is not available in this browser.</p>";
+          return;
+        }
+        setupControls();
+        resizeCanvases();
+        startGame();
+        requestAnimationFrame(loop);
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
